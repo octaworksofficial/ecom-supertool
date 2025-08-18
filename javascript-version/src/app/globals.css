@@ -2,6 +2,9 @@
 @tailwind components;
 @tailwind utilities;
 
+/* Remix Icons CSS'ini güncelleyin */
+@import url('https://cdn.jsdelivr.net/npm/remixicon@4.0.0/fonts/remixicon.css');
+
 :root {
   --border-radius: var(--mui-shape-borderRadius);
   --border-color: var(--mui-palette-divider);

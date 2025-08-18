@@ -59,23 +59,16 @@ const VerticalMenu = ({ scrollMenu }) => {
         
         <MenuItem 
           href='/musteri-yonetimi' 
-          icon={<i className='ri-user-3-line' />}
+          icon={<i className='ri-user-line' />}
         >
           Müşteri Yönetimi
         </MenuItem>
         
         <MenuItem 
           href='/gmaps-musteri-bul' 
-          icon={<i className='ri-map-2-line' />}
+          icon={<i className='ri-map-pin-line' />}
         >
           Google Maps Müşteri Bul
-        </MenuItem>
-
-        <MenuItem 
-          href='/website-musterileri' 
-          icon={<i className='ri-global-line' />}
-        >
-          Web Site Müşterileri
         </MenuItem>
         
         <MenuSection label='Apps & Pages' />

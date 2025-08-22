@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
-import Grid from '@mui/material/Grid'
+import Grid from '@mui/material/Grid2'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -636,7 +636,7 @@ const GMapsCustomerFind = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={3}>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Box className='flex gap-2'>
                   <TextField
                     fullWidth
@@ -681,7 +681,7 @@ const GMapsCustomerFind = () => {
                   </Typography>
                 )}
               </Grid>
-              <Grid item xs={12}>
+              <Grid xs={12}>
                 <Alert severity="info">
                   <Typography variant="body2">
                     <strong>API Key Nasıl Alınır:</strong>
@@ -714,7 +714,7 @@ const GMapsCustomerFind = () => {
           
           <Grid container spacing={4}>
             {/* Keywords Section */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Typography variant='subtitle1' className='mb-2 font-medium'>
                 Anahtar Kelimeler
               </Typography>
@@ -731,6 +731,7 @@ const GMapsCustomerFind = () => {
                         handleAddKeyword()
                       }
                     }}
+                    sx={{ maxWidth: '400px' }}
                   />
                   <Button 
                     variant='contained' 
@@ -758,18 +759,18 @@ const GMapsCustomerFind = () => {
               </Box>
             </Grid>
 
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Divider />
             </Grid>
 
             {/* Location Section */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Typography variant='subtitle1' className='mb-3 font-medium'>
                 Arama Bölgesi
               </Typography>
               
               <Grid container spacing={3}>
-                <Grid item xs={12} sm={6} md={2.4}>
+                <Grid xs={12} sm={6} md={3} lg={2.4}>
                   <FormControl fullWidth>
                     <InputLabel>Şehir</InputLabel>
                     <Select
@@ -790,7 +791,7 @@ const GMapsCustomerFind = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2.4}>
+                <Grid xs={12} sm={6} md={3} lg={2.4}>
                   <FormControl fullWidth disabled={!selectedCity}>
                     <InputLabel>İlçe (Opsiyonel)</InputLabel>
                     <Select
@@ -810,7 +811,7 @@ const GMapsCustomerFind = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2.4}>
+                <Grid xs={12} sm={6} md={3} lg={2.4}>
                   <TextField
                     fullWidth
                     label="Mahalle (Opsiyonel)"
@@ -821,7 +822,7 @@ const GMapsCustomerFind = () => {
                   />
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2.4}>
+                <Grid xs={12} sm={6} md={3} lg={2.4}>
                   <FormControl fullWidth>
                     <InputLabel>Arama Yarıçapı</InputLabel>
                     <Select
@@ -839,7 +840,7 @@ const GMapsCustomerFind = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid item xs={12} sm={6} md={2.4}>
+                <Grid xs={12} sm={6} md={3} lg={2.4}>
                   <FormControl fullWidth>
                     <InputLabel>Maksimum Sonuç</InputLabel>
                     <Select
@@ -859,7 +860,7 @@ const GMapsCustomerFind = () => {
             </Grid>
 
             {/* Search Button */}
-            <Grid item xs={12}>
+            <Grid xs={12}>
               <Divider className='mb-4' />
               <Box className='flex justify-center'>
                 <Button 
@@ -946,7 +947,7 @@ const GMapsCustomerFind = () => {
                     <CardContent className='p-4'>
                       <Grid container spacing={3} alignItems="flex-start">
                         {/* İşletme Bilgileri */}
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                           <Box className='flex items-start justify-between mb-2'>
                             <Typography variant='h6' className='font-semibold text-primary'>
                               {result.name}
@@ -981,7 +982,7 @@ const GMapsCustomerFind = () => {
                         </Grid>
                         
                         {/* İletişim Bilgileri */}
-                        <Grid item xs={12} md={6}>
+                        <Grid xs={12} md={6}>
                           <Box className='space-y-2'>
                             {result.phone && (
                               <Box className='flex items-center'>
@@ -1088,7 +1089,7 @@ const GMapsCustomerFind = () => {
               </Alert>
 
               <Grid container spacing={2} className='mb-4'>
-                <Grid item xs={6} sm={2.4}>
+                <Grid xs={6} sm={2.4}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='success.main'>
                       {importResults.success}
@@ -1098,7 +1099,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={6} sm={2.4}>
+                <Grid xs={6} sm={2.4}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='error.main'>
                       {importResults.error}
@@ -1108,7 +1109,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={6} sm={2.4}>
+                <Grid xs={6} sm={2.4}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='warning.main'>
                       {importResults.duplicate}
@@ -1118,7 +1119,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={6} sm={2.4}>
+                <Grid xs={6} sm={2.4}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='info.main'>
                       {importResults.skipped || 0}
@@ -1128,7 +1129,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid item xs={6} sm={2.4}>
+                <Grid xs={6} sm={2.4}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='primary.main'>
                       {importResults.total}

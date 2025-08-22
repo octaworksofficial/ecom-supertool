@@ -1,6 +1,8 @@
 // Google Maps to Customer Import API
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+
+const prisma = new PrismaClient()
 
 // ➕ POST - Google Maps verilerini müşteri olarak kaydet
 export async function POST(request) {

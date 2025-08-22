@@ -30,6 +30,29 @@ const VerticalMenu = ({ scrollMenu }) => {
   const { isBreakpointReached, transitionDuration } = useVerticalNav()
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
+  const menuData = [
+    {
+      label: 'Dashboard',
+      icon: 'ri:home-smile-line',
+      href: '/'
+    },
+    {
+      label: 'Müşteriler',
+      icon: 'ri:user-3-line',
+      href: '/customers'
+    },
+    {
+      label: 'Toplu E-Posta',
+      icon: 'ri:mail-send-line',
+      href: '/toplu-eposta'
+    },
+    {
+      label: 'E-Posta İstatistikleri', // Yeni sayfa
+      icon: 'ri:bar-chart-2-line',
+      href: '/email-analytics'
+    },
+  ]
+
   return (
     <ScrollWrapper
       {...(isBreakpointReached
@@ -55,7 +78,7 @@ const VerticalMenu = ({ scrollMenu }) => {
           <MenuItem href='/'>Analytics</MenuItem>
         </SubMenu>
         
-        <MenuSection label='E-TİCARET ARAÇLARI' />
+        <MenuSection label='MÜŞTERİ ARAÇLARI' />
         
         <MenuItem 
           href='/musteri-yonetimi' 
@@ -77,8 +100,35 @@ const VerticalMenu = ({ scrollMenu }) => {
         >
           Web Site Müşterileri
         </MenuItem>
+
+        <MenuSection label='E-POSTA ARAÇLARI' />
+
+        <MenuItem 
+          href='/toplu-eposta' 
+          icon={<i className='ri-global-line' />}
+        >
+          Toplu E-posta
+        </MenuItem>
+
+          <MenuItem 
+          href='/email-analytics' 
+          icon={<i className='ri-global-line' />}
+        >
+          E-posta İstatistikleri
+        </MenuItem>
+
+        <MenuSection label='E-TİCARET ARAÇLARI' />
+
+         <MenuItem 
+          href='/trendyol-soru-cevaplama' 
+          icon={<i className='ri-global-line' />}
+        >
+          Trendyol Soru Cevaplama
+        </MenuItem>
         
-        <MenuSection label='Apps & Pages' />
+
+
+        <MenuSection label='DİĞER' />
         
         <MenuItem
           href={`${process.env.NEXT_PUBLIC_PRO_URL}/apps/email`}

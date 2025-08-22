@@ -13,8 +13,8 @@ export async function GET() {
       include: {
         tags: true,
         interactions: {
-          orderBy: { createdAt: 'desc' },
-          take: 10
+          orderBy: { createdAt: 'desc' }
+          // take: 10 kaldırıldı - tüm etkileşimleri getir
         }
       }
     })
@@ -25,7 +25,7 @@ export async function GET() {
   } catch (error) {
     console.error('❌ Customers fetch error:', error)
     return NextResponse.json(
-      { error: error.message },
+      { error: 'Müşteriler yüklenemedi', details: error.message },
       { status: 500 }
     )
   }
@@ -266,11 +266,12 @@ export async function PUT(request) {
 export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url)
-    const id = searchParams.get('id')
+    const idParam = searchParams.get('id')
+    const id = parseInt(idParam)
 
-    if (!id) {
+    if (!id || isNaN(id)) {
       return NextResponse.json(
-        { error: 'Customer ID is required' },
+        { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
       )
     }

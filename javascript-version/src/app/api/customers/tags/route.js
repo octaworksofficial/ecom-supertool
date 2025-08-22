@@ -1,6 +1,8 @@
 // Customer Tags API - Tag Management
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+
+const prisma = new PrismaClient()
 
 // 📋 GET - Tüm etiketleri listele
 export async function GET() {

@@ -6,6 +6,7 @@ import { useRef, useState } from 'react'
 // MUI Imports
 import Tooltip from '@mui/material/Tooltip'
 import IconButton from '@mui/material/IconButton'
+import { useColorScheme } from '@mui/material/styles'
 
 // Hook Imports
 import { useSettings } from '@core/hooks/useSettings'
@@ -19,36 +20,37 @@ const ModeDropdown = () => {
 
   // Hooks
   const { settings, updateSettings } = useSettings()
+  const { mode, setMode } = useColorScheme()
 
   const handleToggle = () => {
-    if (settings.mode === 'dark') {
-      updateSettings({ mode: 'light' })
-    }
-
-    if (settings.mode === 'light') {
-      updateSettings({ mode: 'dark' })
-    }
+    const newMode = settings.mode === 'dark' ? 'light' : 'dark'
+    
+    // Update both settings and MUI color scheme
+    updateSettings({ mode: newMode })
+    setMode(newMode)
   }
 
   const getModeIcon = () => {
-    if (settings.mode === 'dark') {
-      return 'ri-moon-clear-line'
+    // Use MUI mode if available, fallback to settings
+    const currentMode = mode || settings.mode
+    if (currentMode === 'dark') {
+      return '🌙'
     } else {
-      return 'ri-sun-line'
+      return '☀️'
     }
   }
 
   return (
     <>
       <Tooltip
-        title={settings.mode + ' Mode'}
+        title={(mode || settings.mode) + ' Mode'}
         onOpen={() => setTooltipOpen(true)}
         onClose={() => setTooltipOpen(false)}
         open={tooltipOpen}
         PopperProps={{ className: 'capitalize' }}
       >
         <IconButton ref={anchorRef} onClick={handleToggle} className='text-textPrimary'>
-          <i className={getModeIcon()} />
+          {getModeIcon()}
         </IconButton>
       </Tooltip>
     </>

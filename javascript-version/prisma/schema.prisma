@@ -1,180 +1,54 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "sqlite"
-  url      = env("DATABASE_URL")
-}
-
-enum CustomerSource {
-  GMAPS
-  MANUAL
-  IMPORT
-  WEBSITE  // ✅ Bu satırı ekle
-}
-
-enum CustomerStatus {
-  ACTIVE
-  INACTIVE
-  PROSPECT
-  CUSTOMER
-}
-
-enum InteractionType {
-  CALL
-  EMAIL
-  MEETING
-  NOTE
+  url      = "file:./dev.db"
 }
 
 model Customer {
-  id           String   @id @default(cuid())
-  companyName  String   // name'den companyName'e değiştirildi
-  contactName  String?
-  email        String?  @unique
-  phone        String?
-  address      String?
-  city         String?
-  country      String?
-  website      String?
-  rating       Float?
-  reviewCount  Int?
-  categories   String?
-  keywords     String?
-  isOpen       Boolean?
-  coordinates  String?
-  priceLevel   Int?
-  openingHours String?
-  notes        String?  // ✅ Ekle
-  source       CustomerSource @default(MANUAL)
-  status       CustomerStatus @default(ACTIVE)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
-  
-  // Relations
-  tags         CustomerTag[]
-  interactions CustomerInteraction[]
-}
-
-model CustomerTag {
-  id         String @id @default(cuid())
-  name       String @unique
-  color      String?
-  customers  Customer[]
-  createdAt  DateTime @default(now())
+  id                  String                @id
+  companyName         String
+  contactName         String?
+  email               String?               @unique
+  phone               String?
+  address             String?
+  city                String?
+  country             String?
+  website             String?
+  rating              Float?
+  reviewCount         Int?
+  categories          String?
+  keywords            String?
+  isOpen              Boolean?
+  coordinates         String?
+  priceLevel          Int?
+  openingHours        String?
+  source              String                @default("MANUAL")
+  status              String                @default("ACTIVE")
+  createdAt           DateTime              @default(now())
+  updatedAt           DateTime
+  notes               String?
+  CustomerInteraction CustomerInteraction[]
+  CustomerTag         CustomerTag[]
 }
 
 model CustomerInteraction {
-  id          String          @id @default(cuid())
+  id          String   @id
   customerId  String
-  type        InteractionType
+  type        String
   title       String
   description String?
   date        DateTime
-  createdAt   DateTime        @default(now())
-  
-  // Relations
-  customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  createdAt   DateTime @default(now())
+  Customer    Customer @relation(fields: [customerId], references: [id], onDelete: Cascade)
 }
 
-// Müşteri oluştururken notes varsa interaction ekle
-if (body.notes) {
-  await prisma.customerInteraction.create({
-    data: {
-      customerId: customer.id,
-      type: 'NOTE',
-      title: 'İlk Not',
-      description: body.notes,
-      date: new Date()
-    }
-  })
+model CustomerTag {
+  id        String     @id
+  name      String     @unique
+  color     String?
+  createdAt DateTime   @default(now())
+  Customer  Customer[]
 }
-
-                        <TableCell>
-                          <Box className='flex gap-1'>
-                            {(() => {
-                              const customerInteractions = customer.interactions || []
-                              const uniqueTypes = [...new Set(customerInteractions.map(i => i.type))]
-                              
-                              if (uniqueTypes.length === 0) {
-                                return (
-                                  <Chip 
-                                    label="Yok" 
-                                    size="small" 
-                                    variant="outlined" 
-                                    color="default"
-                                  />
-                                )
-                              }
-                              
-                              return uniqueTypes.map(type => {
-                                const iconMap = {
-                                  'CALL': 'ri-phone-line',
-                                  'EMAIL': 'ri-mail-line', 
-                                  'MEETING': 'ri-calendar-line',
-                                  'NOTE': 'ri-sticky-note-line'
-                                }
-                                
-                                const colorMap = {
-                                  'CALL': 'success',
-                                  'EMAIL': 'primary',
-                                  'MEETING': 'warning', 
-                                  'NOTE': 'info'
-                                }
-                                
-                                return (
-                                  <Tooltip 
-                                    key={type}
-                                    title={`${type} - ${customerInteractions.filter(i => i.type === type).length} adet`}
-                                  >
-                                    <Chip
-                                      icon={<i className={iconMap[type]} />}
-                                      label={customerInteractions.filter(i => i.type === type).length}
-                                      size="small"
-                                      color={colorMap[type]}
-                                      variant="outlined"
-                                    />
-                                  </Tooltip>
-                                )
-                              })
-                            })()}
-                          </Box>
-                        </TableCell>
-                      
-  const fetchCustomers = async () => {
-    setIsLoading(true)
-    try {
-      console.log('🔄 Fetching customers...')
-      
-      const response = await fetch('/api/customers', {
-        method: 'GET',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-      })
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status}`)
-      }
-
-      const customersData = await response.json()
-      console.log('✅ Customers loaded:', customersData.length)
-      console.log('🔍 First customer interactions:', customersData[0]?.interactions)
-      
-      setCustomers(customersData)
-      
-    } catch (error) {
-      console.error('❌ Fetch customers error:', error)
-      setSnackbar({
-        open: true,
-        message: `Müşteriler yüklenirken bir hata oluştu: ${error.message}`,
-        severity: 'error'
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }

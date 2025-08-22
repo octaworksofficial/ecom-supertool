@@ -1,11 +1,20 @@
 // Single Customer API - GET, PUT, DELETE Operations
-import { prisma } from '@/lib/prisma'
+import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+
+const prisma = new PrismaClient()
 
 // 📄 GET - Tek müşteri detayını getir
 export async function GET(request, { params }) {
   try {
-    const { id } = params
+    const id = parseInt(params.id)
+    
+    if (!id || isNaN(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Geçerli müşteri ID gerekli' },
+        { status: 400 }
+      )
+    }
 
     const customer = await prisma.customer.findUnique({
       where: { id },
@@ -38,17 +47,19 @@ export async function GET(request, { params }) {
 }
 
 // ✏️ PUT - Müşteri bilgilerini güncelle
-export async function PUT(request) {
+export async function PUT(request, { params }) {
   try {
     const body = await request.json()
-    console.log('📝 Updating customer:', body.id)
-
-    if (!body.id) {
+    const id = parseInt(params.id)
+    
+    if (!id || isNaN(id)) {
       return NextResponse.json(
-        { error: 'Customer ID is required' },
+        { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
       )
     }
+
+    console.log('📝 Updating customer:', id)
 
     // Email validasyonu - boş string'i null olarak ayarla
     const updateData = {
@@ -61,7 +72,7 @@ export async function PUT(request) {
       const existingCustomer = await prisma.customer.findFirst({
         where: { 
           email: updateData.email,
-          NOT: { id: body.id }
+          NOT: { id: id }
         }
       })
       
@@ -74,7 +85,7 @@ export async function PUT(request) {
     }
 
     const customer = await prisma.customer.update({
-      where: { id: body.id },
+      where: { id: id },
       data: {
         companyName: updateData.companyName,
         contactName: updateData.contactName,
@@ -120,7 +131,14 @@ export async function PUT(request) {
 // 🗑️ DELETE - Müşteriyi sil
 export async function DELETE(request, { params }) {
   try {
-    const { id } = params
+    const id = parseInt(params.id)
+    
+    if (!id || isNaN(id)) {
+      return NextResponse.json(
+        { success: false, error: 'Geçerli müşteri ID gerekli' },
+        { status: 400 }
+      )
+    }
 
     // Check if customer exists
     const existingCustomer = await prisma.customer.findUnique({

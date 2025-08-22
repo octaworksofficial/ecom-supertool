@@ -12,11 +12,11 @@ if (process.env.NODE_ENV !== 'production') {
 // GET - Müşteri etkileşimlerini listele
 export async function GET(request, { params }) {
   try {
-    const customerId = params.id
+    const customerId = parseInt(params.id)
     
-    if (!customerId) {
+    if (!customerId || isNaN(customerId)) {
       return NextResponse.json(
-        { error: 'Customer ID gerekli' },
+        { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
       )
     }
@@ -38,7 +38,14 @@ export async function GET(request, { params }) {
       orderBy: { date: 'desc' }
     })
 
-    return NextResponse.json(interactions)
+    // Frontend'e uygun format'ta response döndür
+    const formattedInteractions = interactions.map(interaction => ({
+      ...interaction,
+      title: interaction.subject, // backend subject -> frontend title
+      description: interaction.content // backend content -> frontend description
+    }))
+
+    return NextResponse.json(formattedInteractions)
 
   } catch (error) {
     console.error('Interactions API error:', error)
@@ -52,12 +59,12 @@ export async function GET(request, { params }) {
 // POST - Yeni etkileşim ekle
 export async function POST(request, { params }) {
   try {
-    const customerId = params.id
+    const customerId = parseInt(params.id)
     const data = await request.json()
     
-    if (!customerId) {
+    if (!customerId || isNaN(customerId)) {
       return NextResponse.json(
-        { error: 'Customer ID gerekli' },
+        { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
       )
     }
@@ -74,7 +81,7 @@ export async function POST(request, { params }) {
       )
     }
 
-    // Gerekli alanları kontrol et
+    // Gerekli alanları kontrol et - frontend title ve description gönderiyor
     if (!data.type || !data.title) {
       return NextResponse.json(
         { error: 'Tür ve başlık zorunludur' },
@@ -82,13 +89,13 @@ export async function POST(request, { params }) {
       )
     }
 
-    // Etkileşim oluştur
+    // Etkileşim oluştur - frontend field isimleri ile backend field isimleri eşleştir
     const interaction = await prisma.customerInteraction.create({
       data: {
         customerId: customer.id,
         type: data.type,
-        title: data.title,
-        description: data.description || null,
+        subject: data.title, // frontend title -> backend subject
+        content: data.description || null, // frontend description -> backend content  
         date: data.date ? new Date(data.date) : new Date()
       }
     })

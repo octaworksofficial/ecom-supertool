@@ -6,8 +6,8 @@ import { useMemo } from 'react'
 // MUI Imports
 import { deepmerge } from '@mui/utils'
 import {
-  Experimental_CssVarsProvider as CssVarsProvider,
-  experimental_extendTheme as extendTheme,
+  ThemeProvider as CssVarsProvider,
+  extendTheme,
   lighten,
   darken
 } from '@mui/material/styles'
@@ -70,6 +70,7 @@ const ThemeProvider = props => {
       <CssVarsProvider
         theme={theme}
         defaultMode={settings.mode}
+        colorSchemeSelector="data-mui-color-scheme"
         modeStorageKey={`${themeConfig.templateName.toLowerCase().split(' ').join('-')}-mui-template-mode`}
       >
         <>

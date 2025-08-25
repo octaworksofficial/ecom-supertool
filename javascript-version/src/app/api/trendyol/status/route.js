@@ -1,10 +1,19 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
-
 export async function GET() {
   try {
+    // Skip database connection during build
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ 
+        isRunning: false,
+        currentMessage: 'Database not configured',
+        currentStatus: 'build'
+      })
+    }
+
+    const prisma = new PrismaClient()
+    
     // Veritabanından bot durumunu al
     const botStatus = await prisma.botStatus.findFirst()
     

@@ -2,10 +2,18 @@ import { NextResponse } from 'next/server'
 
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
-
 export async function GET() {
   try {
+    // Skip database connection during build
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ 
+        message: 'Database not configured',
+        test: 'skipped during build'
+      })
+    }
+
+    const prisma = new PrismaClient()
+    
     console.log('Testing database connection...')
     
     // Basit bir test sorgusu

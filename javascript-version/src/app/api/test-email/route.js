@@ -2,12 +2,20 @@ import { NextResponse } from 'next/server'
 
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
-
 export async function GET(request) {
   console.log('🧪 TEST API called!')
   
   try {
+    // Skip database connection during build
+    if (!process.env.DATABASE_URL) {
+      return NextResponse.json({ 
+        message: 'Database not configured',
+        test: 'skipped during build'
+      })
+    }
+
+    const prisma = new PrismaClient()
+    
     // Test email oluştur
     const testEmail = await prisma.emailSend.create({
       data: {

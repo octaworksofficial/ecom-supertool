@@ -161,6 +161,16 @@ export async function POST(request) {
 
         console.error('❌ Contacts API v4 error:', errorText)
         
+        // Site bulunamadı hatası için özel mesaj
+        if (contactsResponse.status === 404 && errorText.includes('meta-site') && errorText.includes('not found')) {
+          return Response.json({
+            success: false,
+            error: 'Site bulunamadı. Lütfen doğru Site ID\'yi kontrol edin veya yeni bir site seçin.',
+            details: 'Bu site ID artık mevcut değil veya erişim izniniz yok.',
+            action: 'selectNewSite'
+          }, { status: 404 })
+        }
+        
         return Response.json({
           success: false,
           error: `Contacts API v4 Error (${contactsResponse.status}): ${errorText}`

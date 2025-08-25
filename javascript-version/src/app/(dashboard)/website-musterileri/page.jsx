@@ -116,7 +116,16 @@ const WebsiteMusterileri = () => {
       const savedWixApiKey = localStorage.getItem('wix_api_key')
       const savedWixSiteId = localStorage.getItem('wix_site_id')
       if (savedWixApiKey) setWixApiKey(savedWixApiKey)
-      if (savedWixSiteId) setWixSiteId(savedWixSiteId)
+      if (savedWixSiteId) {
+        // Site ID'nin geçerli olup olmadığını kontrol et
+        const isValidSiteId = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(savedWixSiteId)
+        if (isValidSiteId) {
+          setWixSiteId(savedWixSiteId)
+        } else {
+          console.warn('Invalid site ID format, clearing:', savedWixSiteId)
+          localStorage.removeItem('wix_site_id')
+        }
+      }
     }
   }, [])
 
@@ -164,6 +173,24 @@ const WebsiteMusterileri = () => {
       localStorage.removeItem('wix_api_key')
       localStorage.removeItem('wix_site_id')
     }
+  }
+
+  // Site bilgilerini yenileme (404 hatası durumunda)
+  const refreshSiteInfo = () => {
+    setWixSiteId('')
+    setAvailableSites([])
+    setSiteInfo(null)
+    setMembers([])
+    setContactsStats(null)
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('wix_site_id')
+    }
+    
+    setSnackbar({
+      open: true,
+      message: 'Site bilgileri temizlendi. Yeni bir site seçin.',
+      severity: 'info'
+    })
   }
 
   // ✨ En sadeleştirilmiş fetchWixContacts - Tarih filtreleri kaldırıldı
@@ -245,6 +272,33 @@ const WebsiteMusterileri = () => {
 
       if (!response.ok) {
         const errorText = await response.text()
+        
+        // Site bulunamadı hatası için özel handling
+        if (response.status === 404) {
+          try {
+            const errorData = JSON.parse(errorText)
+            if (errorData.action === 'selectNewSite') {
+              setSnackbar({
+                open: true,
+                message: 'Mevcut site bulunamadı. Yeni bir site seçin.',
+                severity: 'warning'
+              })
+              
+              // Site ID'yi temizle ve site seçim moduna geç
+              setWixSiteId('')
+              if (typeof window !== 'undefined') {
+                localStorage.removeItem('wix_site_id')
+              }
+              
+              // Site listesini yeniden çek
+              setRequestBody(prev => ({ ...prev, action: 'findSites' }))
+              return
+            }
+          } catch (parseError) {
+            console.warn('Error parsing 404 response:', parseError)
+          }
+        }
+        
         throw new Error(`Contacts API Error (${response.status}): ${errorText}`)
       }
 
@@ -667,41 +721,56 @@ const WebsiteMusterileri = () => {
                     </Typography>
                     
                     <Box className='space-y-4'>
-                      {availableSites.length > 0 ? (
-                        <FormControl fullWidth variant="outlined" size="medium">
-                          <InputLabel>Site Seçin</InputLabel>
-                          <Select
+                      <Box className='flex gap-2'>
+                        {availableSites.length > 0 ? (
+                          <FormControl fullWidth variant="outlined" size="medium">
+                            <InputLabel>Site Seçin</InputLabel>
+                            <Select
+                              value={wixSiteId}
+                              label="Site Seçin"
+                              onChange={(e) => handleWixSiteIdChange(e.target.value)}
+                            >
+                              {availableSites.map((site) => (
+                                <MenuItem key={site.id} value={site.id}>
+                                  <Box className='flex items-center justify-between w-full'>
+                                    <span>{site.displayName}</span>
+                                    <Chip 
+                                      label={site.status} 
+                                      size="small" 
+                                      color={site.status === 'PUBLISHED' ? 'success' : 'default'}
+                                      variant="outlined"
+                                    />
+                                  </Box>
+                                </MenuItem>
+                              ))}
+                            </Select>
+                          </FormControl>
+                        ) : (
+                          <TextField
+                            fullWidth
+                            label="Wix Site ID (İsteğe Bağlı)"
                             value={wixSiteId}
-                            label="Site Seçin"
                             onChange={(e) => handleWixSiteIdChange(e.target.value)}
+                            placeholder="Boş bırakırsanız otomatik bulunur"
+                            helperText="Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                            variant="outlined"
+                            size="medium"
+                          />
+                        )}
+                        
+                        {wixSiteId && (
+                          <Button
+                            variant="outlined"
+                            color="warning"
+                            onClick={refreshSiteInfo}
+                            className="min-w-fit px-3"
+                            title="Site Bilgilerini Yenile"
+                            size="large"
                           >
-                            {availableSites.map((site) => (
-                              <MenuItem key={site.id} value={site.id}>
-                                <Box className='flex items-center justify-between w-full'>
-                                  <span>{site.displayName}</span>
-                                  <Chip 
-                                    label={site.status} 
-                                    size="small" 
-                                    color={site.status === 'PUBLISHED' ? 'success' : 'default'}
-                                    variant="outlined"
-                                  />
-                                </Box>
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </FormControl>
-                      ) : (
-                        <TextField
-                          fullWidth
-                          label="Wix Site ID (İsteğe Bağlı)"
-                          value={wixSiteId}
-                          onChange={(e) => handleWixSiteIdChange(e.target.value)}
-                          placeholder="Boş bırakırsanız otomatik bulunur"
-                          helperText="Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                          variant="outlined"
-                          size="medium"
-                        />
-                      )}
+                            🔄
+                          </Button>
+                        )}
+                      </Box>
                       
                       {wixSiteId && siteInfo && (
                         <Alert severity="info" variant="outlined">

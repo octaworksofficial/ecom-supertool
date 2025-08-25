@@ -850,7 +850,8 @@ const TopluEposta = () => {
       content: template.content,
       isHtml: template.isHtml,
       description: template.description || '',
-      category: template.category || 'General'
+      category: template.category || 'General',
+      id: template.id // Güncelleme için id ekle
     })
     setTemplateDialog(true)
   }
@@ -885,7 +886,8 @@ const TopluEposta = () => {
         content: templateData.content.trim(),
         isHtml: templateData.isHtml,
         description: templateData.description?.trim() || null,
-        category: templateData.category || 'General'
+        category: templateData.category || 'General',
+        id: templateData.id || undefined // Güncelleme için id ekle
       }
       
       if (editingTemplate) {
@@ -917,6 +919,7 @@ const TopluEposta = () => {
   }
 
   const handleDeleteTemplate = async (templateId) => {
+    console.error('Deleting template with id:', templateId)
     try {
       setLoading(true)
       await deleteTemplate(templateId)

@@ -7,9 +7,16 @@ export async function GET(request, { params }) {
   try {
     const { id } = params
     
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID parametresi eksik' },
+        { status: 400 }
+      )
+    }
+    
     const template = await prisma.emailTemplate.findUnique({
       where: {
-        id: parseInt(id)
+        id: id
       }
     })
 
@@ -35,11 +42,19 @@ return NextResponse.json(
 export async function PUT(request, { params }) {
   try {
     const { id } = params
+    
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID parametresi eksik' },
+        { status: 400 }
+      )
+    }
+    
     const { name, subject, content, description, category, isHtml, isActive } = await request.json()
 
     const template = await prisma.emailTemplate.update({
       where: {
-        id: parseInt(id)
+        id: id
       },
       data: {
         ...(name && { name }),
@@ -68,9 +83,16 @@ export async function DELETE(request, { params }) {
   try {
     const { id } = params
 
+    if (!id) {
+      return NextResponse.json(
+        { error: 'ID parametresi eksik' },
+        { status: 400 }
+      )
+    }
+
     await prisma.emailTemplate.delete({
       where: {
-        id: parseInt(id)
+        id: id
       }
     })
 

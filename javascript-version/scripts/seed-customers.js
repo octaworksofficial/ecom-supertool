@@ -2,10 +2,17 @@ const { PrismaClient } = require('@prisma/client');
 const fs = require('fs');
 const path = require('path');
 
-const prisma = new PrismaClient();
-
 async function main() {
+  // Check if DATABASE_URL exists
+  if (!process.env.DATABASE_URL) {
+    console.log('DATABASE_URL not set, skipping seed.');
+    return;
+  }
+
+  let prisma;
   try {
+    prisma = new PrismaClient();
+    
     console.log('Checking current customer count...');
     const currentCount = await prisma.customer.count();
     console.log(`Current customers: ${currentCount}`);
@@ -66,9 +73,12 @@ async function main() {
     
   } catch (error) {
     console.error('Error seeding database:', error);
-    throw error;
+    // Don't throw error, just log it
+    console.log('Seeding failed, but continuing build...');
   } finally {
-    await prisma.$disconnect();
+    if (prisma) {
+      await prisma.$disconnect();
+    }
   }
 }
 

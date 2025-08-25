@@ -1,1 +1,25 @@
 node_modules
+
+# Database files
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+**/prisma/*.db
+**/prisma/**/*.db
+
+# Database backups
+*.sql
+railway_backup_*.sql
+database_*.sql
+customer_data_*.sql
+backup_*.sql
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# OS files
+.DS_Store
+Thumbs.db

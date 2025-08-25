@@ -70,8 +70,10 @@ return NextResponse.json(
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
     
     // 3. Base URL'i belirle (tracking için)
-    const { protocol, host } = new URL(request.url)
-    const baseUrl = `${protocol}://${host}`
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                   process.env.NEXTAUTH_URL || 
+                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+                   `${new URL(request.url).protocol}//${new URL(request.url).host}`
     
     const results = []
     let successCount = 0

@@ -46,9 +46,10 @@ src/assets/iconify-icons/generated-icons.js
 *.db-journal
 *.sqlite
 *.sqlite3
-prisma/dev.db
-prisma/dev*.db
-prisma/prisma/dev.db
+
+#prisma/dev.db
+#prisma/dev*.db
+#prisma/prisma/dev.db
 # Allow migrations but ignore db files
 !prisma/migrations/
 prisma/migrations/**/*.db

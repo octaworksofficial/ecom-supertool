@@ -14,9 +14,6 @@ import {
   FormControlLabel,
   Checkbox
 } from '@mui/material'
-import DownloadIcon from '@mui/icons-material/Download'
-import UploadIcon from '@mui/icons-material/Upload'
-import WarningIcon from '@mui/icons-material/Warning'
 
 export default function DatabaseBackupPage() {
   const [loading, setLoading] = useState(false)
@@ -125,7 +122,6 @@ export default function DatabaseBackupPage() {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                <DownloadIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Create Backup
               </Typography>
               
@@ -139,7 +135,6 @@ export default function DatabaseBackupPage() {
                 onClick={handleBackup}
                 disabled={loading}
                 fullWidth
-                startIcon={<DownloadIcon />}
               >
                 {loading ? 'Creating Backup...' : 'Download Backup'}
               </Button>
@@ -152,7 +147,6 @@ export default function DatabaseBackupPage() {
           <Card>
             <CardContent>
               <Typography variant="h6" gutterBottom>
-                <UploadIcon sx={{ mr: 1, verticalAlign: 'middle' }} />
                 Import Backup
               </Typography>
               
@@ -178,7 +172,6 @@ export default function DatabaseBackupPage() {
                 }
                 label={
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <WarningIcon sx={{ mr: 0.5, color: 'warning.main', fontSize: 16 }} />
                     Clear existing data
                   </Box>
                 }
@@ -197,7 +190,6 @@ export default function DatabaseBackupPage() {
                 onClick={handleImport}
                 disabled={loading || !selectedFile}
                 fullWidth
-                startIcon={<UploadIcon />}
               >
                 {loading ? 'Importing...' : 'Import Backup'}
               </Button>

@@ -30,29 +30,6 @@ const VerticalMenu = ({ scrollMenu }) => {
   const { isBreakpointReached, transitionDuration } = useVerticalNav()
   const ScrollWrapper = isBreakpointReached ? 'div' : PerfectScrollbar
 
-  const menuData = [
-    {
-      label: 'Dashboard',
-      icon: 'ri:home-smile-line',
-      href: '/'
-    },
-    {
-      label: 'Müşteriler',
-      icon: 'ri:user-3-line',
-      href: '/customers'
-    },
-    {
-      label: 'Toplu E-Posta',
-      icon: 'ri:mail-send-line',
-      href: '/toplu-eposta'
-    },
-    {
-      label: 'E-Posta İstatistikleri', // Yeni sayfa
-      icon: 'ri:bar-chart-2-line',
-      href: '/email-analytics'
-    },
-  ]
-
   return (
     <ScrollWrapper
       {...(isBreakpointReached
@@ -72,7 +49,7 @@ const VerticalMenu = ({ scrollMenu }) => {
         menuSectionStyles={menuSectionStyles(theme)}
       >
         <SubMenu
-          label='Dashboards'
+          label='🏠 Ana Sayfa'
           icon={<i className='ri-home-smile-line' />}
         >
           <MenuItem href='/'>Analytics</MenuItem>
@@ -84,21 +61,21 @@ const VerticalMenu = ({ scrollMenu }) => {
           href='/musteri-yonetimi' 
           icon={<i className='ri-user-3-line' />}
         >
-          Müşteri Yönetimi
+          👥 Müşteri Yönetimi
         </MenuItem>
         
         <MenuItem 
           href='/gmaps-musteri-bul' 
           icon={<i className='ri-map-2-line' />}
         >
-          Google Maps Müşteri Bul
+          📍 Google Maps Müşteri Bul
         </MenuItem>
 
         <MenuItem 
           href='/website-musterileri' 
           icon={<i className='ri-global-line' />}
         >
-          Web Site Müşterileri
+          🙍🏻‍♂️ Web Site Müşterileri
         </MenuItem>
 
         <MenuSection label='E-POSTA ARAÇLARI' />
@@ -107,14 +84,14 @@ const VerticalMenu = ({ scrollMenu }) => {
           href='/toplu-eposta' 
           icon={<i className='ri-global-line' />}
         >
-          Toplu E-posta
+          ✉️ Toplu E-posta
         </MenuItem>
 
           <MenuItem 
           href='/email-analytics' 
           icon={<i className='ri-global-line' />}
         >
-          E-posta İstatistikleri
+          📊 E-posta İstatistikleri
         </MenuItem>
 
         <MenuSection label='E-TİCARET ARAÇLARI' />
@@ -123,7 +100,7 @@ const VerticalMenu = ({ scrollMenu }) => {
           href='/trendyol-soru-cevaplama' 
           icon={<i className='ri-global-line' />}
         >
-          Trendyol Soru Cevaplama
+          ⁉️ Trendyol Soru Cevaplama
         </MenuItem>
         
 

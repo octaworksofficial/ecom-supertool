@@ -50,6 +50,7 @@ async function sendAnswerToTrendyol(supplierId, apiKey, apiSecret, questionId, a
     
     if (!response.ok) {
       const errorText = await response.text()
+
       console.log('❌ Error Response Body:', errorText)
       console.log('================================\n')
       
@@ -58,6 +59,7 @@ async function sendAnswerToTrendyol(supplierId, apiKey, apiSecret, questionId, a
     }
 
     const data = await response.json()
+
     console.log('✅ Success Response Body:', JSON.stringify(data, null, 2))
     console.log('📏 Response Size:', JSON.stringify(data).length, 'bytes')
     console.log('================================\n')
@@ -134,6 +136,7 @@ export async function POST(request) {
 
     // Yanıt template'ini uygula (eğer varsa)
     let finalAnswer = customAnswer.trim()
+
     if (settings.answerTemplate && settings.answerTemplate.includes('{answer}')) {
       finalAnswer = settings.answerTemplate.replace('{answer}', customAnswer.trim())
       console.log('📝 Template applied - Final answer length:', finalAnswer.length)

@@ -1,5 +1,6 @@
 // Customer Interactions API - Notes, Calls, Meetings
 import { NextResponse } from 'next/server'
+
 import { PrismaClient } from '@prisma/client'
 
 const globalForPrisma = globalThis
@@ -12,9 +13,9 @@ if (process.env.NODE_ENV !== 'production') {
 // GET - Müşteri etkileşimlerini listele
 export async function GET(request, { params }) {
   try {
-    const customerId = parseInt(params.id)
+    const customerId = params.id
     
-    if (!customerId || isNaN(customerId)) {
+    if (!customerId) {
       return NextResponse.json(
         { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
@@ -49,7 +50,8 @@ export async function GET(request, { params }) {
 
   } catch (error) {
     console.error('Interactions API error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: error.message },
       { status: 500 }
     )
@@ -59,10 +61,10 @@ export async function GET(request, { params }) {
 // POST - Yeni etkileşim ekle
 export async function POST(request, { params }) {
   try {
-    const customerId = parseInt(params.id)
+    const customerId = params.id
     const data = await request.json()
     
-    if (!customerId || isNaN(customerId)) {
+    if (!customerId) {
       return NextResponse.json(
         { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
@@ -104,7 +106,8 @@ export async function POST(request, { params }) {
 
   } catch (error) {
     console.error('Interaction creation error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: error.message },
       { status: 500 }
     )

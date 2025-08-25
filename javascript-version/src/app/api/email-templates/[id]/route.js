@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import prisma from '@/libs/prisma'
 
 // GET - Belirli bir email template'i getir
@@ -22,7 +23,8 @@ export async function GET(request, { params }) {
     return NextResponse.json(template)
   } catch (error) {
     console.error('Email template getirme hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Email template getirilemedi' },
       { status: 500 }
     )
@@ -53,7 +55,8 @@ export async function PUT(request, { params }) {
     return NextResponse.json(template)
   } catch (error) {
     console.error('Email template güncelleme hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Email template güncellenemedi' },
       { status: 500 }
     )
@@ -74,7 +77,8 @@ export async function DELETE(request, { params }) {
     return NextResponse.json({ message: 'Email template silindi' })
   } catch (error) {
     console.error('Email template silme hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Email template silinemedi' },
       { status: 500 }
     )

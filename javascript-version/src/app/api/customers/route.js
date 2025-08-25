@@ -1,5 +1,6 @@
 // Customer Management API - Full CRUD Operations
 import { NextResponse } from 'next/server'
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -14,17 +15,18 @@ export async function GET() {
         tags: true,
         interactions: {
           orderBy: { createdAt: 'desc' }
-          // take: 10 kaldırıldı - tüm etkileşimleri getir
         }
       }
     })
     
     console.log(`✅ Found ${customers.length} customers`)
-    return NextResponse.json(customers)
+    
+return NextResponse.json(customers)
     
   } catch (error) {
     console.error('❌ Customers fetch error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Müşteriler yüklenemedi', details: error.message },
       { status: 500 }
     )
@@ -34,6 +36,7 @@ export async function GET() {
 export async function POST(request) {
   try {
     const body = await request.json()
+
     console.log('📝 Creating customer:', body)
 
     // Validation - sadece şirket ismi zorunlu
@@ -108,7 +111,8 @@ export async function POST(request) {
     })
 
     console.log('✅ Customer created:', customer.id)
-    return NextResponse.json(customer)
+    
+return NextResponse.json(customer)
 
   } catch (error) {
     console.error('❌ Customer creation error:', error)
@@ -121,7 +125,9 @@ export async function POST(request) {
           { status: 409 }
         )
       }
-      return NextResponse.json(
+
+      
+return NextResponse.json(
         { error: 'Dublicasyonlu veri girişi tespit edildi' },
         { status: 409 }
       )
@@ -137,6 +143,7 @@ export async function POST(request) {
 export async function PUT(request) {
   try {
     const body = await request.json()
+
     console.log('📝 Updating customer:', body.id)
 
     if (!body.id) {
@@ -224,7 +231,8 @@ export async function PUT(request) {
     })
 
     console.log('✅ Customer updated:', customer.id)
-    return NextResponse.json(customer)
+    
+return NextResponse.json(customer)
 
   } catch (error) {
     console.error('❌ Customer update error:', error)
@@ -244,13 +252,16 @@ export async function PUT(request) {
           { status: 409 }
         )
       }
+
       if (error.meta?.target?.includes('phone')) {
         return NextResponse.json(
           { error: 'Bu telefon numarası başka bir müşteri tarafından kullanılıyor' },
           { status: 409 }
         )
       }
-      return NextResponse.json(
+
+      
+return NextResponse.json(
         { error: 'Dublicasyonlu veri girişi tespit edildi' },
         { status: 409 }
       )
@@ -266,10 +277,9 @@ export async function PUT(request) {
 export async function DELETE(request) {
   try {
     const { searchParams } = new URL(request.url)
-    const idParam = searchParams.get('id')
-    const id = parseInt(idParam)
+    const id = searchParams.get('id')
 
-    if (!id || isNaN(id)) {
+    if (!id || !id.trim()) {
       return NextResponse.json(
         { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
@@ -277,11 +287,12 @@ export async function DELETE(request) {
     }
 
     await prisma.customer.delete({
-      where: { id }
+      where: { id: id.trim() }
     })
 
     console.log('✅ Customer deleted:', id)
-    return NextResponse.json({ success: true })
+    
+return NextResponse.json({ success: true })
 
   } catch (error) {
     console.error('❌ Customer delete error:', error)

@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import prisma from '@/libs/prisma'
 
 const defaultTemplates = [
@@ -72,7 +73,8 @@ export async function POST() {
     })
   } catch (error) {
     console.error('Default template ekleme hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Default template\'ler eklenemedi' },
       { status: 500 }
     )

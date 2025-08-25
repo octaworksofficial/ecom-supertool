@@ -8,7 +8,8 @@ export async function POST(request) {
 
     if (!apiKey) {
       console.log('❌ API key eksik')
-      return NextResponse.json({ error: 'API key gerekli' }, { status: 400 })
+      
+return NextResponse.json({ error: 'API key gerekli' }, { status: 400 })
     }
 
     let url = ''
@@ -27,7 +28,8 @@ export async function POST(request) {
       url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${params.placeId}&fields=name,formatted_address,formatted_phone_number,international_phone_number,website,rating,user_ratings_total,types,geometry,opening_hours,price_level,reviews&key=${apiKey}`
     } else {
       console.log('❌ Geçersiz arama tipi:', searchType)
-      return NextResponse.json({ error: 'Geçersiz arama tipi' }, { status: 400 })
+      
+return NextResponse.json({ error: 'Geçersiz arama tipi' }, { status: 400 })
     }
 
     console.log('🌐 API URL:', url.replace(apiKey, 'API_KEY_HIDDEN'))
@@ -45,7 +47,8 @@ export async function POST(request) {
     // API hatalarını kontrol et
     if (data.status === 'REQUEST_DENIED') {
       console.log('❌ REQUEST_DENIED:', data.error_message)
-      return NextResponse.json({ 
+      
+return NextResponse.json({ 
         error: `API Key sorunu: ${data.error_message}`, 
         status: data.status 
       }, { status: 403 })
@@ -53,7 +56,8 @@ export async function POST(request) {
     
     if (data.status === 'OVER_QUERY_LIMIT') {
       console.log('❌ OVER_QUERY_LIMIT')
-      return NextResponse.json({ 
+      
+return NextResponse.json({ 
         error: 'API quota aşıldı. Daha sonra tekrar deneyin.', 
         status: data.status 
       }, { status: 429 })
@@ -62,6 +66,7 @@ export async function POST(request) {
     return NextResponse.json(data)
   } catch (error) {
     console.error('❌ Google Maps API hatası:', error)
-    return NextResponse.json({ error: 'API çağrısında hata oluştu' }, { status: 500 })
+    
+return NextResponse.json({ error: 'API çağrısında hata oluştu' }, { status: 500 })
   }
 }

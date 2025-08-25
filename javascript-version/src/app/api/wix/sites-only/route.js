@@ -55,6 +55,7 @@ export async function POST(request) {
         
         if (response.ok) {
           const data = await response.json()
+
           console.log('✅ Sites endpoint success:', endpoint)
           console.log('📊 Response structure:', Object.keys(data))
           
@@ -91,6 +92,7 @@ export async function POST(request) {
           })
         } else {
           const errorText = await response.text()
+
           console.log(`❌ Endpoint ${endpoint} failed (${response.status}):`, errorText)
         }
       } catch (endpointError) {
@@ -104,6 +106,7 @@ export async function POST(request) {
     if (apiKey.startsWith('IST.')) {
       try {
         const parts = apiKey.split('.')
+
         if (parts.length >= 2) {
           const payload = JSON.parse(atob(parts[1]))
           const accountData = JSON.parse(payload.data)
@@ -144,7 +147,8 @@ export async function POST(request) {
     
   } catch (error) {
     console.error('🚨 Sites API error:', error)
-    return Response.json(
+    
+return Response.json(
       { success: false, error: 'Sunucu hatası', details: error.message }, 
       { status: 500 }
     )

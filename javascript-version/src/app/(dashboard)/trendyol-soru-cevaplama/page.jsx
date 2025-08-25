@@ -61,7 +61,6 @@ const iconEmojis = {
 
 const TrendyolSoruCevaplama = () => {
   // State Management
-  const [isRunning, setIsRunning] = useState(false)
   const [questions, setQuestions] = useState([])
   const [settings, setSettings] = useState({
     supplierId: '',
@@ -72,9 +71,6 @@ const TrendyolSoruCevaplama = () => {
     openaiModel: 'gpt-4o',
     openaiMaxTokens: 1000,
     openaiTemperature: 0.7,
-    autoAnswer: true,
-    checkInterval: 30, // saniye
-    answerDelay: 5, // saniye
     answerTemplate: `Merhaba,
 
 Sorunuz için teşekkür ederiz. 
@@ -110,18 +106,9 @@ Başka sorularınız için her zaman buradayız.
   const [filterStatus, setFilterStatus] = useState('all')
   const [aiLoading, setAiLoading] = useState(false)
   const [quickAnswerStates, setQuickAnswerStates] = useState({}) // Her soru için ayrı durum
-  const [botStats, setBotStats] = useState({
-    totalProcessed: 0,
-    successfulAnswers: 0,
-    failedAnswers: 0,
-    lastProcessedAt: null,
-    uptime: 0,
-    queueSize: 0
-  })
 
   // Sadece component mount olduğunda çalışacak useEffect
   useEffect(() => {
-    checkBotStatus()
     loadSettings()
   }, []) // Boş dependency array = sadece mount'ta çalışır
 
@@ -138,26 +125,6 @@ Başka sorularınız için her zaman buradayız.
       }
     }
   }, [settingsLoaded]) // Sadece settingsLoaded değiştiğinde
-
-  // Periyodik kontroller için ayrı useEffect
-  useEffect(() => {
-    // Her 30 saniyede bir soruları güncelle
-    const questionsInterval = setInterval(() => {
-      if (isRunning) {
-        fetchQuestions()
-      }
-    }, 30000)
-    
-    // Her 10 saniyede bir bot durumunu kontrol et
-    const statusInterval = setInterval(() => {
-      checkBotStatus()
-    }, 10000)
-
-    return () => {
-      clearInterval(questionsInterval)
-      clearInterval(statusInterval)
-    }
-  }, [isRunning]) // isRunning değiştiğinde yeniden başlat
 
   const loadSettings = async () => {
     // Eğer ayarlar zaten yüklenmişse tekrar yükleme
@@ -180,8 +147,10 @@ Başka sorularınız için her zaman buradayız.
           apiSecret: dbSettings.secretKey || '',
           openaiApiKey: dbSettings.openaiApiKey || '',
           openaiModel: dbSettings.openaiModel || 'gpt-4o',
+          openaiMaxTokens: dbSettings.openaiMaxTokens || 1000,
+          openaiTemperature: dbSettings.openaiTemperature || 0.7,
           openaiAssistantId: dbSettings.assistantId || '',
-          checkInterval: dbSettings.checkInterval || 30
+          answerTemplate: dbSettings.answerTemplate || '{answer}',
         }
         
         setSettings(updatedSettings)
@@ -228,10 +197,12 @@ Başka sorularınız için her zaman buradayız.
         sellerId: settings.supplierId || '',
         apiKey: settings.apiKey || '',
         secretKey: settings.apiSecret || '',
-        checkInterval: settings.checkInterval || 30,
         openaiApiKey: settings.openaiApiKey || '',
         openaiModel: settings.openaiModel || 'gpt-4o',
+        openaiMaxTokens: settings.openaiMaxTokens || 1000,
+        openaiTemperature: settings.openaiTemperature || 0.7,
         assistantId: settings.openaiAssistantId || '',
+        answerTemplate: settings.answerTemplate || '{answer}',
         isActive: true
       }
       
@@ -272,25 +243,6 @@ Başka sorularınız için her zaman buradayız.
         setError(null)
         setSuccess(null)
       }, 3000)
-    }
-  }
-
-  const checkBotStatus = async () => {
-    try {
-      const response = await fetch('/api/trendyol/status')
-      if (response.ok) {
-        const data = await response.json()
-        setIsRunning(data.isRunning)
-        if (data.stats) {
-          setBotStats({
-            ...data.stats,
-            currentActivity: data.currentActivity,
-            nextCheckAt: data.nextCheckAt
-          })
-        }
-      }
-    } catch (error) {
-      console.error('Status check failed:', error)
     }
   }
 
@@ -389,52 +341,6 @@ Başka sorularınız için her zaman buradayız.
       setError(`Sorular yüklenirken hata: ${error.message}`)
       addLog(`❌ Soru yükleme hatası: ${error.message}`, 'error')
       setQuestions([]) // Hata durumunda boş liste
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const startBot = async () => {
-    try {
-      setLoading(true)
-      setError(null)
-      
-      const response = await fetch('/api/trendyol/start', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(settings)
-      })
-      
-      const data = await response.json()
-      
-      if (response.ok) {
-        setIsRunning(true)
-        setSuccess('Trendyol bot başlatıldı!')
-        addLog('✅ Bot başlatıldı', 'success')
-        saveSettings()
-      } else {
-        throw new Error(data.error || 'Bot başlatılamadı')
-      }
-    } catch (error) {
-      setError(error.message)
-      addLog(`❌ Bot başlatma hatası: ${error.message}`, 'error')
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const stopBot = async () => {
-    try {
-      setLoading(true)
-      const response = await fetch('/api/trendyol/stop', { method: 'POST' })
-      
-      if (response.ok) {
-        setIsRunning(false)
-        setSuccess('Trendyol bot durduruldu!')
-        addLog('⏹️ Bot durduruldu', 'info')
-      }
-    } catch (error) {
-      setError(error.message)
     } finally {
       setLoading(false)
     }
@@ -727,26 +633,6 @@ Başka sorularınız için her zaman buradayız.
         </Box>
         
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
-          {}
-          
-          {isRunning && settings.autoAnswer && (
-            <Chip 
-              label={`${Math.round((settings.checkInterval || 180) / 60)} dakikada bir`}
-              size="small"
-              color="info"
-              variant="outlined"
-            />
-          )}
-          
-          {isRunning && botStats.totalProcessed > 0 && (
-            <Chip 
-              label={`${botStats.totalProcessed} işlendi`}
-              size="small"
-              color="success"
-              variant="outlined"
-            />
-          )}
-          
           <IconButton 
             onClick={() => {
               console.log('Settings button clicked')
@@ -936,72 +822,10 @@ Başka sorularınız için her zaman buradayız.
           }
         />
         <CardContent>
-          {/* Bot Durum Kartı - Sadece bot çalışırken görünür */}
-          {isRunning && (
-            <Alert 
-              severity="info" 
-              sx={{ 
-                mb: 3, 
-                fontSize: '14px',
-                '& .MuiAlert-message': {
-                  fontSize: '14px'
-                }
-              }}
-              icon={<Box component="span">{botStats?.currentActivity ? '🔄' : iconEmojis.check}</Box>}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  {botStats?.currentActivity || "Bot beklemede..."}
-                </Typography>
-                {botStats?.nextCheckAt && (
-                  <Typography variant="caption" color="text.secondary">
-                    Sonraki kontrol: {new Date(botStats.nextCheckAt).toLocaleTimeString('tr-TR')}
-                  </Typography>
-                )}
-              </Box>
-            </Alert>
-          )}
 
           {/* Ana Kontrol Butonları */}
           <Box sx={{ display: 'flex', gap: 2, alignItems: 'flex-start', flexWrap: 'wrap', mb: 3 }}>
-            {/* Bot Kontrol Alanı */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 180 }}>
-              {!isRunning ? (
-                <Button
-                  variant="contained"
-                  startIcon={<Box component="span">{iconEmojis.start}</Box>}
-                  onClick={startBot}
-                  disabled={loading || !settings.supplierId || !settings.openaiApiKey}
-                  color="success"
-                  size="medium"
-                  sx={{ 
-                    minHeight: 42,
-                    fontSize: '14px',
-                    fontWeight: 600
-                  }}
-                >
-                  Bot'u Başlat
-                </Button>
-              ) : (
-                <Button
-                  variant="contained"
-                  startIcon={<Box component="span">{iconEmojis.stop}</Box>}
-                  onClick={stopBot}
-                  disabled={loading}
-                  color="error"
-                  size="medium"
-                  sx={{ 
-                    minHeight: 42,
-                    fontSize: '14px',
-                    fontWeight: 600
-                  }}
-                >
-                  Bot'u Durdur
-                </Button>
-              )}
-            </Box>
-            
-            {/* Diğer Kontrol Butonları */}
+            {/* Kontrol Butonları */}
             <Box sx={{ display: 'flex', gap: 1.5, alignItems: 'center', flexWrap: 'wrap' }}>
               <Button
                 variant="outlined"
@@ -1038,42 +862,7 @@ Başka sorularınız için her zaman buradayız.
               </Button>
             </Box>
             
-            <Divider orientation="vertical" flexItem sx={{ height: 60, alignSelf: 'center' }} />
-            
-            {/* Otomatik AI Yanıtlama Switch */}
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, minWidth: 200 }}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.autoAnswer}
-                    onChange={(e) => setSettings(prev => ({ 
-                      ...prev, 
-                      autoAnswer: e.target.checked 
-                    }))}
-                    color="success"
-                    size="medium"
-                  />
-                }
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box component="span">🤖</Box>
-                    <Typography variant="body2" sx={{ fontWeight: settings.autoAnswer ? 'bold' : 'normal' }}>
-                      Otomatik AI Yanıtlama
-                    </Typography>
-                    {settings.autoAnswer && (
-                      <Chip 
-                        label="Aktif" 
-                        size="small" 
-                        color="success" 
-                        variant="filled"
-                        sx={{ height: 20, fontSize: '11px' }}
-                      />
-                    )}
-                  </Box>
-                }
-                sx={{ margin: 0 }}
-              />
-            </Box>
+          <Divider orientation="vertical" flexItem sx={{ height: 60, alignSelf: 'center' }} />
             
             {/* Loading Indicator */}
             {loading && (
@@ -1116,50 +905,12 @@ Başka sorularınız için her zaman buradayız.
             </Box>
             <Box>
               <Typography variant="caption" color="text.secondary">
-                Bot Durumu
-              </Typography>
-              <Typography variant="h6" color={isRunning ? "success.main" : "text.secondary"}>
-                {isRunning ? 'Aktif' : 'Pasif'}
-              </Typography>
-            </Box>
-            <Box>
-              <Typography variant="caption" color="text.secondary">
                 AI Durumu
               </Typography>
               <Typography variant="h6" color={settings.openaiApiKey ? "success.main" : "warning.main"}>
                 {settings.openaiApiKey ? 'Hazır' : 'API Eksik'}
               </Typography>
             </Box>
-            {isRunning && (
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  İşlenen Soru
-                </Typography>
-                <Typography variant="h6" color="info.main">
-                  {botStats.totalProcessed}
-                </Typography>
-              </Box>
-            )}
-            {isRunning && (
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  Başarı Oranı
-                </Typography>
-                <Typography variant="h6" color="success.main">
-                  %{botStats.totalProcessed > 0 ? Math.round((botStats.successfulAnswers / botStats.totalProcessed) * 100) : 0}
-                </Typography>
-              </Box>
-            )}
-            {Object.keys(quickAnswerStates).length > 0 && (
-              <Box>
-                <Typography variant="caption" color="text.secondary">
-                  AI İşlem
-                </Typography>
-                <Typography variant="h6" color="info.main">
-                  {Object.keys(quickAnswerStates).length} İşleniyor
-                </Typography>
-              </Box>
-            )}
           </Box>
         </CardContent>
       </Card>
@@ -1537,72 +1288,6 @@ Başka sorularınız için her zaman buradayız.
                 inputProps={{ min: 0, max: 2, step: 0.1 }}
                 helperText="Yaratıcılık seviyesi (0.0-2.0)"
               />
-            </Grid>
-
-            {/* Bot Ayarları */}
-            <Grid size={12}>
-              <Divider sx={{ my: 2 }} />
-              <Typography variant="h6" gutterBottom>
-                Bot Ayarları
-              </Typography>
-            </Grid>
-            
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                label="Kontrol Aralığı (saniye)"
-                type="number"
-                value={settings.checkInterval}
-                onChange={(e) => setSettings({...settings, checkInterval: parseInt(e.target.value)})}
-                helperText="Bot ne sıklıkla soru kontrol etsin"
-              />
-            </Grid>
-            
-            <Grid size={{ xs: 12, md: 6 }}>
-              <TextField
-                fullWidth
-                label="Yanıt Gecikmesi (saniye)"
-                type="number"
-                value={settings.answerDelay}
-                onChange={(e) => setSettings({...settings, answerDelay: parseInt(e.target.value)})}
-                helperText="Yanıt göndermeden önce bekle"
-              />
-            </Grid>
-            
-            <Grid size={12}>
-              <FormControlLabel
-                control={
-                  <Switch
-                    checked={settings.autoAnswer}
-                    onChange={(e) => setSettings({...settings, autoAnswer: e.target.checked})}
-                    color="success"
-                  />
-                }
-                label={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                    <Box component="span">🤖</Box>
-                    <Typography variant="body1" sx={{ fontWeight: settings.autoAnswer ? 'bold' : 'normal' }}>
-                      Otomatik AI Yanıtlama
-                    </Typography>
-                  </Box>
-                }
-              />
-              {settings.autoAnswer && (
-                <Alert severity="success" sx={{ mt: 1 }}>
-                  <Typography variant="body2">
-                    🚀 <strong>Otomatik yanıtlama aktif!</strong><br/>
-                    Bot her {Math.round((settings.checkInterval || 180) / 60)} dakikada bir bekleyen soruları kontrol edip AI ile yanıtlayacak.
-                  </Typography>
-                </Alert>
-              )}
-              {!settings.autoAnswer && (
-                <Alert severity="info" sx={{ mt: 1 }}>
-                  <Typography variant="body2">
-                    ℹ️ <strong>Sadece manuel yanıtlama:</strong><br/>
-                    Sorular otomatik yanıtlanmayacak, sadece manuel "Hızlı Yanıtla" butonları çalışacak.
-                  </Typography>
-                </Alert>
-              )}
             </Grid>
             
             <Grid size={12}>

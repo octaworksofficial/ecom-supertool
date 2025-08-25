@@ -1,6 +1,7 @@
 export async function POST(request) {
   try {
     const body = await request.json()
+
     console.log('🔗 Wix Contacts API v4 Request:', body)
     
     const { apiKey, siteId, action, options } = body
@@ -29,6 +30,7 @@ export async function POST(request) {
         'Authorization': `Bearer ${apiKey}`,
         'Content-Type': 'application/json'
       }
+
       if (siteId) {
         authHeaders['wix-site-id'] = siteId
       }
@@ -58,6 +60,7 @@ export async function POST(request) {
           
           if (siteResponse.ok) {
             const siteData = await siteResponse.json()
+
             const sites = (siteData.sites || [siteData]).map(site => ({
               id: site.id || site.siteId,
               displayName: site.displayName || site.name || 'Unnamed Site',
@@ -155,6 +158,7 @@ export async function POST(request) {
       
       if (!contactsResponse.ok) {
         const errorText = await contactsResponse.text()
+
         console.error('❌ Contacts API v4 error:', errorText)
         
         return Response.json({
@@ -164,6 +168,7 @@ export async function POST(request) {
       }
       
       const contactsData = await contactsResponse.json()
+
       console.log('✅ Contacts API v4 SUCCESS!')
       console.log('📊 Response summary:', {
         contactsCount: contactsData.contacts?.length || 0,
@@ -244,6 +249,7 @@ export async function POST(request) {
             
             if (siteInfoResponse.ok) {
               const siteData = await siteInfoResponse.json()
+
               console.log('✅ Site info response:', siteData)
               
               // Farklı endpoint'ler farklı format döndürebilir
@@ -261,6 +267,7 @@ export async function POST(request) {
               // Sites array response
               if (siteData.sites && siteData.sites.length > 0) {
                 const targetSite = siteData.sites.find(s => s.id === siteId) || siteData.sites[0]
+
                 siteInfo = {
                   id: siteId,
                   displayName: targetSite.displayName || targetSite.siteName || 'Wix Site',
@@ -330,7 +337,8 @@ export async function POST(request) {
       
     } catch (error) {
       console.error('🚨 Contacts v4 fetch error:', error)
-      return Response.json({
+      
+return Response.json({
         success: false,
         error: 'Contacts çekme hatası',
         details: error.message
@@ -339,7 +347,8 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('🚨 General Contacts API v4 error:', error)
-    return Response.json({
+    
+return Response.json({
       success: false,
       error: 'Sunucu hatası',
       details: error.message

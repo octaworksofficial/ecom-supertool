@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -13,6 +14,7 @@ export async function GET(request) {
     
     // Date filter
     const dateFilter = new Date()
+
     dateFilter.setDate(dateFilter.getDate() - days)
     
     // Base query conditions
@@ -129,7 +131,8 @@ export async function GET(request) {
     
   } catch (error) {
     console.error('❌ Real analytics error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Analytics yüklenemedi', details: error.message },
       { status: 500 }
     )

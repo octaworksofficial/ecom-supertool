@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import { google } from 'googleapis'
 
 export async function GET(request) {
@@ -12,20 +13,26 @@ export async function GET(request) {
     if (error) {
       console.error('OAuth error from Google:', error)
       const redirectUrl = `${process.env.NEXTAUTH_URL}/toplu-eposta?error=${encodeURIComponent(error)}`
-      return NextResponse.redirect(redirectUrl)
+
+      
+return NextResponse.redirect(redirectUrl)
     }
     
     if (!code) {
       console.error('No authorization code received')
       const redirectUrl = `${process.env.NEXTAUTH_URL}/toplu-eposta?error=no_authorization_code`
-      return NextResponse.redirect(redirectUrl)
+
+      
+return NextResponse.redirect(redirectUrl)
     }
     
     // Environment variables kontrolü
     if (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET || !process.env.GOOGLE_REDIRECT_URI) {
       console.error('Missing OAuth environment variables')
       const redirectUrl = `${process.env.NEXTAUTH_URL}/toplu-eposta?error=missing_oauth_config`
-      return NextResponse.redirect(redirectUrl)
+
+      
+return NextResponse.redirect(redirectUrl)
     }
     
     try {
@@ -52,11 +59,14 @@ export async function GET(request) {
       if (!tokens.access_token) {
         console.error('Access token is missing')
         const redirectUrl = `${process.env.NEXTAUTH_URL}/toplu-eposta?error=missing_access_token`
-        return NextResponse.redirect(redirectUrl)
+
+        
+return NextResponse.redirect(redirectUrl)
       }
       
       // Success redirect
       const redirectUrl = new URL(`${process.env.NEXTAUTH_URL}/toplu-eposta`)
+
       redirectUrl.searchParams.set('oauth_success', 'true')
       redirectUrl.searchParams.set('access_token', tokens.access_token)
       
@@ -66,10 +76,12 @@ export async function GET(request) {
       
       // Expiry date - eğer yoksa 1 saat sonra expire et
       const expiryDate = tokens.expiry_date || (Date.now() + 3600000)
+
       redirectUrl.searchParams.set('expiry_date', expiryDate.toString())
       
       console.log('Redirecting to success page with tokens')
-      return NextResponse.redirect(redirectUrl.toString())
+      
+return NextResponse.redirect(redirectUrl.toString())
       
     } catch (tokenError) {
       console.error('Token exchange error details:', {
@@ -95,7 +107,9 @@ export async function GET(request) {
       }
       
       const redirectUrl = `${process.env.NEXTAUTH_URL}/toplu-eposta?error=${errorMessage}&details=${encodeURIComponent(errorDetails)}`
-      return NextResponse.redirect(redirectUrl)
+
+      
+return NextResponse.redirect(redirectUrl)
     }
     
   } catch (error) {
@@ -105,6 +119,8 @@ export async function GET(request) {
     })
     
     const redirectUrl = `${process.env.NEXTAUTH_URL}/toplu-eposta?error=callback_failed&details=${encodeURIComponent(error.message)}`
-    return NextResponse.redirect(redirectUrl)
+
+    
+return NextResponse.redirect(redirectUrl)
   }
 }

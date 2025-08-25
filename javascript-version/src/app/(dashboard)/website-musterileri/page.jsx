@@ -63,6 +63,7 @@ const WebsiteMusterileri = () => {
   const [snackbar, setSnackbar] = useState({ open: false, message: '', severity: 'success' })
   const [siteInfo, setSiteInfo] = useState(null)
   const [contactsStats, setContactsStats] = useState(null)
+  const [isClient, setIsClient] = useState(false)
 
   // Frontend pagination
   const [page, setPage] = useState(0)
@@ -107,36 +108,46 @@ const WebsiteMusterileri = () => {
     })
   }
 
-  // localStorage'dan API key'leri yükle
+  // localStorage'dan API key'leri yükle - sadece client-side'da
   useEffect(() => {
-    const savedWixApiKey = localStorage.getItem('wix_api_key')
-    const savedWixSiteId = localStorage.getItem('wix_site_id')
-    if (savedWixApiKey) setWixApiKey(savedWixApiKey)
-    if (savedWixSiteId) setWixSiteId(savedWixSiteId)
+    setIsClient(true)
+    
+    if (typeof window !== 'undefined') {
+      const savedWixApiKey = localStorage.getItem('wix_api_key')
+      const savedWixSiteId = localStorage.getItem('wix_site_id')
+      if (savedWixApiKey) setWixApiKey(savedWixApiKey)
+      if (savedWixSiteId) setWixSiteId(savedWixSiteId)
+    }
   }, [])
 
   // API Key kaydetme
   const handleWixApiKeyChange = (value) => {
     setWixApiKey(value)
-    if (value.trim()) {
-      localStorage.setItem('wix_api_key', value.trim())
-    } else {
-      localStorage.removeItem('wix_api_key')
+    if (typeof window !== 'undefined') {
+      if (value.trim()) {
+        localStorage.setItem('wix_api_key', value.trim())
+      } else {
+        localStorage.removeItem('wix_api_key')
+      }
     }
     setAvailableSites([])
     setWixSiteId('')
     setMembers([])
     setContactsStats(null)
     setSiteInfo(null)
-    localStorage.removeItem('wix_site_id')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('wix_site_id')
+    }
   }
 
   const handleWixSiteIdChange = (value) => {
     setWixSiteId(value)
-    if (value.trim()) {
-      localStorage.setItem('wix_site_id', value.trim())
-    } else {
-      localStorage.removeItem('wix_site_id')
+    if (typeof window !== 'undefined') {
+      if (value.trim()) {
+        localStorage.setItem('wix_site_id', value.trim())
+      } else {
+        localStorage.removeItem('wix_site_id')
+      }
     }
   }
 
@@ -149,8 +160,10 @@ const WebsiteMusterileri = () => {
     setMembers([])
     setContactsStats(null)
     setPage(0)
-    localStorage.removeItem('wix_api_key')
-    localStorage.removeItem('wix_site_id')
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('wix_api_key')
+      localStorage.removeItem('wix_site_id')
+    }
   }
 
   // ✨ En sadeleştirilmiş fetchWixContacts - Tarih filtreleri kaldırıldı
@@ -245,7 +258,9 @@ const WebsiteMusterileri = () => {
           if (data.sites && data.sites.length === 1) {
             const autoSiteId = data.sites[0].id
             setWixSiteId(autoSiteId)
-            localStorage.setItem('wix_site_id', autoSiteId)
+            if (typeof window !== 'undefined') {
+              localStorage.setItem('wix_site_id', autoSiteId)
+            }
             
             setTimeout(() => fetchWixContacts(), 500)
             return
@@ -443,15 +458,22 @@ const WebsiteMusterileri = () => {
 
   return (
     <Box className='flex flex-col gap-6'>
-      {/* Header */}
-      <div className='flex flex-col gap-2'>
-        <Typography variant='h4' className='font-medium'>
-          Web Site Müşterileri
-        </Typography>
-        <Typography variant='body1' color='text.secondary'>
-          Web sitenizden contact bilgilerini çekerek müşteri tabanınıza ekleyin
-        </Typography>
-      </div>
+      {/* Client-side render guard */}
+      {!isClient ? (
+        <Box className='flex justify-center items-center p-8'>
+          <CircularProgress />
+        </Box>
+      ) : (
+        <>
+          {/* Header */}
+          <div className='flex flex-col gap-2'>
+            <Typography variant='h4' className='font-medium'>
+              Web Site Müşterileri
+            </Typography>
+            <Typography variant='body1' color='text.secondary'>
+              Web sitenizden contact bilgilerini çekerek müşteri tabanınıza ekleyin
+            </Typography>
+          </div>
 
       {/* Platform Seçimi */}
       <Card>
@@ -460,7 +482,7 @@ const WebsiteMusterileri = () => {
             Platform Seçimi
           </Typography>
           <Grid container spacing={3}>
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <Card 
                 className={`cursor-pointer transition-all duration-200 ${
                   selectedPlatform === 'wix' 
@@ -496,7 +518,7 @@ const WebsiteMusterileri = () => {
             </Grid>
 
             {/* Diğer platformlar... */}
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }}>
               <Card className='cursor-not-allowed opacity-60'>
                 <CardContent className='p-4 text-center'>
                   <Box className='flex flex-col items-center gap-3'>
@@ -520,7 +542,7 @@ const WebsiteMusterileri = () => {
               </Card>
             </Grid>
 
-            <Grid item xs={12} md={4}>
+            <Grid size={{ xs: 12, sm: 12, md: 4 }}>
               <Card className='cursor-not-allowed opacity-60'>
                 <CardContent className='p-4 text-center'>
                   <Box className='flex flex-col items-center gap-3'>
@@ -576,97 +598,193 @@ const WebsiteMusterileri = () => {
               </Box>
             </AccordionSummary>
             <AccordionDetails>
-              <Grid container spacing={3}>
-                <Grid item xs={12} md={6}>
-                  <Box className='flex gap-2'>
-                    <TextField
-                      fullWidth
-                      label="Wix API Key"
-                      type={showApiKey ? 'text' : 'password'}
-                      value={wixApiKey}
-                      onChange={(e) => handleWixApiKeyChange(e.target.value)}
-                      placeholder="Wix Developer Console'dan aldığınız API key"
-                      InputProps={{
-                        endAdornment: (
-                          <InputAdornment position="end">
-                            <IconButton
-                              onClick={() => setShowApiKey(!showApiKey)}
-                              edge="end"
-                            >
-                              <i className={showApiKey ? 'ri-eye-off-line' : 'ri-eye-line'} />
-                            </IconButton>
-                          </InputAdornment>
-                        ),
-                      }}
-                    />
-                    {wixApiKey && (
-                      <Button
-                        variant="outlined"
-                        color="error"
-                        onClick={clearWixCredentials}
-                        className="min-w-fit"
-                        title="Bilgileri Temizle"
-                      >
-                        ×
-                      </Button>
-                    )}
+              <Grid container spacing={6}>
+                {/* API Key Section - Sol genişlik */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Box className='p-6 bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl border border-blue-200 h-full'>
+                    <Typography variant='subtitle1' className='mb-4 font-semibold text-blue-800 flex items-center gap-2'>
+                      <i className='ri-key-line text-blue-600' />
+                      API Kimlik Bilgileri
+                    </Typography>
+                    
+                    <Box className='space-y-4'>
+                      <Box className='flex gap-2'>
+                        <TextField
+                          fullWidth
+                          label="Wix API Key"
+                          type={showApiKey ? 'text' : 'password'}
+                          value={wixApiKey}
+                          onChange={(e) => handleWixApiKeyChange(e.target.value)}
+                          placeholder="Wix Developer Console'dan aldığınız API key"
+                          variant="outlined"
+                          size="medium"
+                          InputProps={{
+                            endAdornment: (
+                              <InputAdornment position="end">
+                                <IconButton
+                                  onClick={() => setShowApiKey(!showApiKey)}
+                                  edge="end"
+                                >
+                                  <i className={showApiKey ? 'ri-eye-off-line' : 'ri-eye-line'} />
+                                </IconButton>
+                              </InputAdornment>
+                            ),
+                          }}
+                        />
+                        {wixApiKey && (
+                          <Button
+                            variant="outlined"
+                            color="error"
+                            onClick={clearWixCredentials}
+                            className="min-w-fit px-3"
+                            title="Bilgileri Temizle"
+                            size="large"
+                          >
+                            ❌
+                          </Button>
+                        )}
+                      </Box>
+                      
+                      {wixApiKey && (
+                        <Alert severity="success" variant="outlined">
+                          <Typography variant="caption" className="flex items-center gap-1">
+                          
+                            Wix API Key başarıyla kaydedildi
+                            {availableSites.length > 0 && ` (${availableSites.length} site bulundu)`}
+                          </Typography>
+                        </Alert>
+                      )}
+                    </Box>
                   </Box>
                 </Grid>
-                
-                <Grid item xs={12} md={6}>
-                  <Box className='flex gap-2'>
-                    {availableSites.length > 0 ? (
-                      <FormControl fullWidth>
-                        <InputLabel>Site Seçin</InputLabel>
-                        <Select
+
+                {/* Site Selection Section - Sağ genişlik */}
+                <Grid size={{ xs: 12, md: 6 }}>
+                  <Box className='p-6 bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl border border-purple-200 h-full'>
+                    <Typography variant='subtitle1' className='mb-4 font-semibold text-purple-800 flex items-center gap-2'>
+                      <i className='ri-global-line text-purple-600' />
+                      Site Seçimi
+                    </Typography>
+                    
+                    <Box className='space-y-4'>
+                      {availableSites.length > 0 ? (
+                        <FormControl fullWidth variant="outlined" size="medium">
+                          <InputLabel>Site Seçin</InputLabel>
+                          <Select
+                            value={wixSiteId}
+                            label="Site Seçin"
+                            onChange={(e) => handleWixSiteIdChange(e.target.value)}
+                          >
+                            {availableSites.map((site) => (
+                              <MenuItem key={site.id} value={site.id}>
+                                <Box className='flex items-center justify-between w-full'>
+                                  <span>{site.displayName}</span>
+                                  <Chip 
+                                    label={site.status} 
+                                    size="small" 
+                                    color={site.status === 'PUBLISHED' ? 'success' : 'default'}
+                                    variant="outlined"
+                                  />
+                                </Box>
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </FormControl>
+                      ) : (
+                        <TextField
+                          fullWidth
+                          label="Wix Site ID (İsteğe Bağlı)"
                           value={wixSiteId}
-                          label="Site Seçin"
                           onChange={(e) => handleWixSiteIdChange(e.target.value)}
-                        >
-                          {availableSites.map((site) => (
-                            <MenuItem key={site.id} value={site.id}>
-                              {site.displayName} ({site.status})
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </FormControl>
-                    ) : (
-                      <TextField
-                        fullWidth
-                        label="Wix Site ID (İsteğe Bağlı)"
-                        value={wixSiteId}
-                        onChange={(e) => handleWixSiteIdChange(e.target.value)}
-                        placeholder="Boş bırakırsanız otomatik bulunur"
-                        helperText="Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
-                      />
-                    )}
+                          placeholder="Boş bırakırsanız otomatik bulunur"
+                          helperText="Format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                          variant="outlined"
+                          size="medium"
+                        />
+                      )}
+                      
+                      {wixSiteId && siteInfo && (
+                        <Alert severity="info" variant="outlined">
+                          <Typography variant="caption" className="flex items-center gap-1">
+                            <i className='ri-information-line text-blue-600' />
+                            Site: {siteInfo.displayName}
+                            {siteInfo.url && ` (${siteInfo.url})`}
+                          </Typography>
+                        </Alert>
+                      )}
+                    </Box>
                   </Box>
                 </Grid>
                 
-                <Grid item xs={12}>
-                  {wixApiKey && (
-                    <Typography variant="caption" color="success.main">
-                      ✓ Wix API Key kaydedildi
-                      {availableSites.length > 0 && ` (${availableSites.length} site bulundu)`}
+                {/* API Documentation Section - Alt genişlik */}
+                <Grid size={{ xs: 12 }}>
+                  <Box className='p-6 bg-gradient-to-r from-gray-50 to-gray-100 rounded-xl border border-gray-200'>
+                    <Typography variant='subtitle1' className='mb-4 font-semibold text-gray-800 flex items-center gap-2'>
+                      <i className='ri-book-open-line text-gray-600' />
+                      Wix Contacts API v4 Dokümantasyonu
                     </Typography>
-                  )}
-                </Grid>
-                
-                <Grid item xs={12}>
-                  <Alert severity="info">
-                    <Typography variant="body2">
-                      <strong>Wix Contacts API v4:</strong>
-                      <br />
-                      • <strong>Desteklenen sıralama:</strong> createdDate, lastActivity.activityDate, primaryInfo.email, info.name.first, info.name.last, info.company, info.jobTitle, info.birthdate
-                      <br />
-                      • <strong>Maksimum limit:</strong> 1000 contact
-                      <br />
-                      • <strong>Gerekli izinler:</strong> CRM/Contacts API
-                      <br />
-                      <br />
-                      <strong>API Key için:</strong> <a href="https://dev.wix.com/" target="_blank" rel="noopener noreferrer">dev.wix.com</a> → My Apps → <strong>Contacts</strong> izni
-                    </Typography>
-                  </Alert>
+                    
+                    <Grid container spacing={4}>
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <Box className='space-y-3'>
+                          <Typography variant='body2' className='font-medium text-gray-700'>
+                            📋 Desteklenen Sıralama Alanları:
+                          </Typography>
+                          <Box className='flex flex-wrap gap-2'>
+                            {[
+                              'createdDate', 'lastActivity.activityDate', 'primaryInfo.email', 
+                              'info.name.first', 'info.name.last', 'info.company', 
+                              'info.jobTitle', 'info.birthdate'
+                            ].map((field) => (
+                              <Chip 
+                                key={field} 
+                                label={field} 
+                                size="small" 
+                                variant="outlined" 
+                                color="primary"
+                              />
+                            ))}
+                          </Box>
+                        </Box>
+                      </Grid>
+                      
+                      <Grid size={{ xs: 12, md: 6 }}>
+                        <Box className='space-y-3'>
+                          <Typography variant='body2' className='font-medium text-gray-700'>
+                            ⚙️ API Limitleri ve İzinler:
+                          </Typography>
+                          <Box className='space-y-2'>
+                            <Typography variant='caption' className='flex items-center gap-2'>
+                              <Chip label="Max: 1000" size="small" color="warning" variant="outlined" />
+                              Maksimum contact sayısı
+                            </Typography>
+                            <Typography variant='caption' className='flex items-center gap-2'>
+                              <Chip label="CRM/Contacts" size="small" color="success" variant="outlined" />
+                              Gerekli API izni
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Grid>
+                      
+                      <Grid size={{ xs: 12 }}>
+                        <Alert severity="info" variant="outlined">
+                          <Typography variant="body2" className='flex items-center gap-2'>
+                            <i className='ri-external-link-line' />
+                            <strong>API Key almak için:</strong>
+                            <a 
+                              href="https://dev.wix.com/" 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 font-medium"
+                            >
+                              dev.wix.com
+                            </a>
+                            → My Apps → <strong>Contacts API</strong> izni verin
+                          </Typography>
+                        </Alert>
+                      </Grid>
+                    </Grid>
+                  </Box>
                 </Grid>
               </Grid>
             </AccordionDetails>
@@ -717,7 +835,7 @@ const WebsiteMusterileri = () => {
               <Box className='p-4'>
                 <Grid container spacing={4}>
                   {/* Sıralama ve Limit */}
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <Box className='p-4 bg-gray-50 rounded-lg'>
                       <Typography variant='subtitle1' className='mb-3 font-medium flex items-center gap-2'>
                         <i className='ri-sort-desc text-green-600' />
@@ -725,7 +843,7 @@ const WebsiteMusterileri = () => {
                       </Typography>
                       
                       <Grid container spacing={2}>
-                        <Grid item xs={6}>
+                        <Grid size={{ xs: 6 }}>
                           <FormControl fullWidth size="small">
                             <InputLabel>Sıralama Alanı</InputLabel>
                             <Select
@@ -745,7 +863,7 @@ const WebsiteMusterileri = () => {
                           </FormControl>
                         </Grid>
                         
-                        <Grid item xs={6}>
+                        <Grid size={{ xs: 6 }}>
                           <FormControl fullWidth size="small">
                             <InputLabel>Sıralama Yönü</InputLabel>
                             <Select
@@ -759,7 +877,7 @@ const WebsiteMusterileri = () => {
                           </FormControl>
                         </Grid>
                         
-                        <Grid item xs={12}>
+                        <Grid size={{ xs: 12 }}>
                           <Typography variant='caption' color='text.secondary' className='mb-2 block'>
                             Contact Sayısı Limiti: {filters.limit} (Max: 1000)
                           </Typography>
@@ -784,7 +902,7 @@ const WebsiteMusterileri = () => {
                   </Grid>
 
                   {/* Veri Filtreleri - sağa taşındı */}
-                  <Grid item xs={12} md={4}>
+                  <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                     <Box className='p-4 bg-gray-50 rounded-lg'>
                       <Typography variant='subtitle1' className='mb-3 font-medium flex items-center gap-2'>
                         <i className='ri-database-line text-orange-600' />
@@ -841,15 +959,55 @@ const WebsiteMusterileri = () => {
                     </Box>
                   </Grid>
 
-                  {/* Boş alan veya gelecek özellikler için */}
-                  <Grid item xs={12} md={4}>
-                    <Box className='p-4 bg-gray-50 rounded-lg h-full flex items-center justify-center'>
-                      <Typography variant='body2' color='text.secondary' className='text-center'>
-                        <i className='ri-lightbulb-line text-2xl block mb-2' />
-                        Bu alan gelecekteki
-                        <br />
-                        özellikler için ayrıldı.
+                  {/* API Durumu ve İstatistikler */}
+                  <Grid size={{ xs: 12, sm: 12, md: 4 }}>
+                    <Box className='p-4 bg-gradient-to-br from-green-50 to-blue-50 rounded-lg border border-green-200 h-full'>
+                      <Typography variant='subtitle1' className='mb-3 font-medium text-green-800 flex items-center gap-2'>
+                        <i className='ri-bar-chart-line text-green-600' />
+                        API Durumu
                       </Typography>
+                      
+                      <Box className='space-y-3'>
+                        {wixApiKey ? (
+                          <Box className='flex items-center gap-2'>
+                            ✅
+                            <Typography variant='body2' className='text-green-700'>
+                              API Key Bağlı
+                            </Typography>
+                          </Box>
+                        ) : (
+                          <Box className='flex items-center gap-2'>
+                            ❌
+                            <Typography variant='body2' className='text-red-700'>
+                              API Key Gerekli
+                            </Typography>
+                          </Box>
+                        )}
+                        
+                        {siteInfo && (
+                          <Box className='flex items-center gap-2'>
+                            🌐
+                            <Typography variant='body2' className='text-blue-700'>
+                              Site Seçili
+                            </Typography>
+                          </Box>
+                        )}
+                        
+                        {contactsStats && (
+                          <Box className='mt-3 p-2 bg-white rounded border'>
+                            <Typography variant='caption' color='text.secondary' className='block'>
+                              Toplam Contact
+                            </Typography>
+                            <Typography variant='h6' className='font-bold text-blue-600'>
+                              {contactsStats.total?.toLocaleString('tr-TR') || '0'}
+                            </Typography>
+                          </Box>
+                        )}
+                        
+                        <Typography variant='caption' color='text.secondary' className='block mt-2'>
+                          Wix Contacts API v4
+                        </Typography>
+                      </Box>
                     </Box>
                   </Grid>
                 </Grid>
@@ -1149,6 +1307,8 @@ const WebsiteMusterileri = () => {
           <strong>Wix Contacts API v4:</strong> Resmi API dokümantasyonuna uygun entegrasyon. Maksimum 1000 contact çekebilirsiniz.
         </Typography>
       </Alert>
+        </>
+      )}
     </Box>
   )
 }

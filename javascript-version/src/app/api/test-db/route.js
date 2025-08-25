@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -9,10 +10,12 @@ export async function GET() {
     
     // Basit bir test sorgusu
     const result = await prisma.$queryRaw`SELECT 1 as test`
+
     console.log('Database test result:', result)
     
     // Customer tablosunu kontrol et
     const customerCount = await prisma.customer.count()
+
     console.log('Customer count:', customerCount)
     
     return NextResponse.json({
@@ -22,7 +25,8 @@ export async function GET() {
     })
   } catch (error) {
     console.error('Database test error:', error)
-    return NextResponse.json({
+    
+return NextResponse.json({
       success: false,
       error: error.message,
       code: error.code

@@ -33,6 +33,7 @@ const ModeDropdown = () => {
   const getModeIcon = () => {
     // Use MUI mode if available, fallback to settings
     const currentMode = mode || settings.mode
+
     if (currentMode === 'dark') {
       return '🌙'
     } else {

@@ -7,7 +7,7 @@ import { useState, useEffect } from 'react'
 import Card from '@mui/material/Card'
 import CardContent from '@mui/material/CardContent'
 import CardHeader from '@mui/material/CardHeader'
-import Grid from '@mui/material/Grid2'
+import Grid from '@mui/material/Grid'
 import TextField from '@mui/material/TextField'
 import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
@@ -636,7 +636,7 @@ const GMapsCustomerFind = () => {
           </AccordionSummary>
           <AccordionDetails>
             <Grid container spacing={3}>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Box className='flex gap-2'>
                   <TextField
                     fullWidth
@@ -681,7 +681,7 @@ const GMapsCustomerFind = () => {
                   </Typography>
                 )}
               </Grid>
-              <Grid xs={12}>
+              <Grid size={{ xs: 12 }}>
                 <Alert severity="info">
                   <Typography variant="body2">
                     <strong>API Key Nasıl Alınır:</strong>
@@ -714,7 +714,7 @@ const GMapsCustomerFind = () => {
           
           <Grid container spacing={4}>
             {/* Keywords Section */}
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle1' className='mb-2 font-medium'>
                 Anahtar Kelimeler
               </Typography>
@@ -731,7 +731,6 @@ const GMapsCustomerFind = () => {
                         handleAddKeyword()
                       }
                     }}
-                    sx={{ maxWidth: '400px' }}
                   />
                   <Button 
                     variant='contained' 
@@ -759,18 +758,18 @@ const GMapsCustomerFind = () => {
               </Box>
             </Grid>
 
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Divider />
             </Grid>
 
             {/* Location Section */}
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Typography variant='subtitle1' className='mb-3 font-medium'>
                 Arama Bölgesi
               </Typography>
               
               <Grid container spacing={3}>
-                <Grid xs={12} sm={6} md={3} lg={2.4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <FormControl fullWidth>
                     <InputLabel>Şehir</InputLabel>
                     <Select
@@ -791,7 +790,7 @@ const GMapsCustomerFind = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3} lg={2.4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <FormControl fullWidth disabled={!selectedCity}>
                     <InputLabel>İlçe (Opsiyonel)</InputLabel>
                     <Select
@@ -811,7 +810,7 @@ const GMapsCustomerFind = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3} lg={2.4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <TextField
                     fullWidth
                     label="Mahalle (Opsiyonel)"
@@ -822,7 +821,7 @@ const GMapsCustomerFind = () => {
                   />
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3} lg={2.4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <FormControl fullWidth>
                     <InputLabel>Arama Yarıçapı</InputLabel>
                     <Select
@@ -840,7 +839,7 @@ const GMapsCustomerFind = () => {
                   </FormControl>
                 </Grid>
 
-                <Grid xs={12} sm={6} md={3} lg={2.4}>
+                <Grid size={{ xs: 12, sm: 6, md: 4 }}>
                   <FormControl fullWidth>
                     <InputLabel>Maksimum Sonuç</InputLabel>
                     <Select
@@ -860,7 +859,7 @@ const GMapsCustomerFind = () => {
             </Grid>
 
             {/* Search Button */}
-            <Grid xs={12}>
+            <Grid size={{ xs: 12 }}>
               <Divider className='mb-4' />
               <Box className='flex justify-center'>
                 <Button 
@@ -898,26 +897,41 @@ const GMapsCustomerFind = () => {
 
       {/* Search Results */}
       {searchCompleted && (
-        <Card>
+        <Card className='border-l-4 border-l-success'>
           <CardContent className='p-6'>
-            <Box className='flex justify-between items-center mb-4'>
-              <Typography variant='h6'>
-                Arama Sonuçları
-              </Typography>
+            <Box className='flex flex-col sm:flex-row sm:justify-between sm:items-center mb-6 gap-4'>
               <Box className='flex items-center gap-3'>
+                <Box className='p-2 bg-success/10 rounded-lg'>
+                  <i className='ri-search-2-line text-success text-xl' />
+                </Box>
+                <Box>
+                  <Typography variant='h6' className='font-bold text-gray-800'>
+                    Arama Sonuçları
+                  </Typography>
+                  <Typography variant='body2' color='text.secondary'>
+                    {keywords.join(', ')} • {selectedCity}{selectedDistrict ? `, ${selectedDistrict}` : ''}
+                  </Typography>
+                </Box>
+              </Box>
+              
+              <Box className='flex flex-col sm:flex-row items-start sm:items-center gap-3'>
                 <Chip 
                   label={`${searchResults.length} müşteri bulundu`} 
                   color='success' 
-                  variant='outlined'
+                  variant='filled'
+                  className='font-medium'
+                  icon={<i className='ri-user-3-line' />}
                 />
+                
                 {searchResults.length > 0 && (
-                  <>
+                  <Box className='flex gap-2'>
                     <Button
                       variant='contained'
                       color='success'
                       onClick={exportToXLSX}
                       startIcon={<i className='ri-file-excel-2-line' />}
                       disabled={isExporting}
+                      size='small'
                     >
                       {isExporting ? 'İndiriliyor...' : 'Excel İndir'}
                     </Button>
@@ -928,97 +942,118 @@ const GMapsCustomerFind = () => {
                       onClick={importToCustomerBase}
                       startIcon={<i className='ri-database-2-line' />}
                       disabled={isImporting}
+                      size='small'
                     >
                       {isImporting ? 'Aktarılıyor...' : 'Müşteri Tabanına Ekle'}
                     </Button>
-                  </>
+                  </Box>
                 )}
               </Box>
             </Box>
 
             {searchResults.length === 0 ? (
-              <Alert severity="warning">
-                Aramanızla eşleşen işletme bulunamadı. Farklı anahtar kelimeler veya daha geniş bir bölge deneyin.
-              </Alert>
+              <Card variant='outlined' className='border-dashed border-2 border-warning/50 bg-gradient-to-r from-orange-50 to-yellow-50'>
+                <CardContent className='p-8 text-center'>
+                  <Box className='flex flex-col items-center gap-4'>
+                    <Box className='p-4 bg-warning/10 rounded-full'>
+                      <i className='ri-search-eye-line text-warning text-4xl' />
+                    </Box>
+                    
+                    <Box>
+                      <Typography variant='h6' className='font-medium text-gray-800 mb-2'>
+                        Sonuç Bulunamadı
+                      </Typography>
+                      <Typography variant='body1' color='text.secondary' className='mb-4'>
+                        Aramanızla eşleşen işletme bulunamadı.
+                      </Typography>
+                    </Box>
+                    
+                    <Box className='bg-white p-4 rounded-lg border border-gray-200 max-w-md'>
+                      <Typography variant='subtitle2' className='font-medium mb-2 flex items-center gap-2'>
+                        <i className='ri-lightbulb-line text-primary' />
+                        Öneriler:
+                      </Typography>
+                      <ul className='text-sm text-gray-600 space-y-1 list-disc list-inside'>
+                        <li>Farklı anahtar kelimeler deneyin</li>
+                        <li>Daha geniş bir bölge seçin</li>
+                        <li>Arama yarıçapını artırın</li>
+                        <li>Maksimum sonuç sayısını yükseltin</li>
+                      </ul>
+                    </Box>
+                  </Box>
+                </CardContent>
+              </Card>
             ) : (
-              <Box className='space-y-3'>
+              <Box className='space-y-4'>
                 {searchResults.slice(0, 10).map((result, index) => (
-                  <Card key={result.id} variant='outlined' className='transition-shadow hover:shadow-md'>
-                    <CardContent className='p-4'>
-                      <Grid container spacing={3} alignItems="flex-start">
-                        {/* İşletme Bilgileri */}
-                        <Grid xs={12} md={6}>
-                          <Box className='flex items-start justify-between mb-2'>
-                            <Typography variant='h6' className='font-semibold text-primary'>
-                              {result.name}
-                            </Typography>
-                            {result.rating && (
-                              <Chip 
-                                label={`⭐ ${result.rating}`} 
-                                size='small' 
-                                color='warning'
-                                variant='outlined'
-                              />
-                            )}
-                          </Box>
-                          
-                          <Box className='flex items-start mb-2'>
-                            <i className='ri-map-pin-line text-gray-500 mr-2 mt-1' />
-                            <Typography variant='body2' color='text.secondary' className='flex-1'>
-                              {result.fullAddress || result.address}
-                            </Typography>
-                          </Box>
-                          
+                  <Card 
+                    key={result.id} 
+                    variant='outlined' 
+                    className='transition-all duration-300 hover:shadow-lg hover:border-primary/30 border-2'
+                    sx={{ 
+                      '&:hover': { 
+                        transform: 'translateY(-2px)',
+                        boxShadow: '0 8px 25px rgba(0,0,0,0.1)' 
+                      } 
+                    }}
+                  >
+                    <CardContent className='p-6'>
+                      {/* Başlık ve Puan Satırı */}
+                      <Box className='flex items-start justify-between mb-4'>
+                        <Box className='flex-1'>
+                          <Typography variant='h6' className='font-bold text-gray-800 mb-1'>
+                            {result.name}
+                          </Typography>
                           {result.types && result.types.length > 0 && (
-                            <Box className='mb-2'>
-                              <Chip 
-                                label={result.types[0].replace(/_/g, ' ')} 
-                                size='small' 
-                                color='primary'
-                                variant='outlined'
-                              />
-                            </Box>
+                            <Chip 
+                              label={result.types[0].replace(/_/g, ' ')} 
+                              size='small' 
+                              color='primary'
+                              variant='filled'
+                              className='text-xs'
+                            />
                           )}
-                        </Grid>
-                        
-                        {/* İletişim Bilgileri */}
-                        <Grid xs={12} md={6}>
-                          <Box className='space-y-2'>
-                            {result.phone && (
-                              <Box className='flex items-center'>
-                                <i className='ri-phone-line text-green-600 mr-2' />
-                                <Typography variant='body2' color='text.primary'>
-                                  {result.phone}
+                        </Box>
+                        <Box className='flex flex-col items-end gap-1'>
+                          {result.rating && (
+                            <Chip 
+                              label={`⭐ ${result.rating}`} 
+                              size='small' 
+                              color='warning'
+                              variant='filled'
+                              className='font-medium'
+                            />
+                          )}
+                          {result.userRatingsTotal && (
+                            <Typography variant='caption' color='text.secondary'>
+                              {result.userRatingsTotal} yorum
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+
+                      <Grid container spacing={4}>
+                        {/* Sol Kolon - Adres ve Konum */}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                          <Box className='space-y-3'>
+                            <Box className='flex items-start gap-3 p-3 bg-gray-50 rounded-lg'>
+                              <i className='ri-map-pin-line text-red-500 text-lg mt-0.5' />
+                              <Box className='flex-1'>
+                                <Typography variant='body2' className='font-medium text-gray-700 mb-1'>
+                                  Adres
+                                </Typography>
+                                <Typography variant='body2' color='text.secondary' className='leading-relaxed'>
+                                  {result.fullAddress || result.address}
                                 </Typography>
                               </Box>
-                            )}
-                            
-                            {result.website && (
-                              <Box className='flex items-center'>
-                                <i className='ri-global-line text-purple-600 mr-2' />
-                                <a 
-                                  href={result.website} 
-                                  target='_blank' 
-                                  rel='noopener noreferrer'
-                                  className='text-blue-600 hover:text-blue-800 text-sm'
-                                >
-                                  Website Ziyaret Et
-                                </a>
-                              </Box>
-                            )}
-                            
-                            {result.userRatingsTotal && (
-                              <Box className='flex items-center'>
-                                <i className='ri-user-line text-gray-500 mr-2' />
-                                <Typography variant='body2' color='text.secondary'>
-                                  {result.userRatingsTotal} değerlendirme
-                                </Typography>
-                              </Box>
-                            )}
+                            </Box>
                             
                             {result.keyword && (
-                              <Box className='flex items-center'>
-                                <i className='ri-search-line text-blue-500 mr-2' />
+                              <Box className='flex items-center gap-2 p-2 bg-blue-50 rounded-lg'>
+                                <i className='ri-search-line text-blue-500' />
+                                <Typography variant='body2' color='text.secondary'>
+                                  Bulundu:
+                                </Typography>
                                 <Chip 
                                   label={result.keyword} 
                                   size='small' 
@@ -1029,15 +1064,143 @@ const GMapsCustomerFind = () => {
                             )}
                           </Box>
                         </Grid>
+                        
+                        {/* Sağ Kolon - İletişim Bilgileri */}
+                        <Grid size={{ xs: 12, md: 6 }}>
+                          <Box className='space-y-3'>
+                            {result.phone && (
+                              <Box className='flex items-center gap-3 p-3 bg-green-50 rounded-lg'>
+                                <i className='ri-phone-line text-green-600 text-lg' />
+                                <Box className='flex-1'>
+                                  <Typography variant='body2' className='font-medium text-gray-700 mb-1'>
+                                    Telefon
+                                  </Typography>
+                                  <Typography variant='body2' className='font-mono text-green-700'>
+                                    {result.phone}
+                                  </Typography>
+                                </Box>
+                                <Button
+                                  size='small'
+                                  variant='outlined'
+                                  color='success'
+                                  onClick={() => window.open(`tel:${result.phone}`)}
+                                  className='min-w-fit px-2'
+                                >
+                                  <i className='ri-phone-line text-sm' />
+                                </Button>
+                              </Box>
+                            )}
+                            
+                            {result.website && (
+                              <Box className='flex items-center gap-3 p-3 bg-purple-50 rounded-lg'>
+                                <i className='ri-global-line text-purple-600 text-lg' />
+                                <Box className='flex-1'>
+                                  <Typography variant='body2' className='font-medium text-gray-700 mb-1'>
+                                    Website
+                                  </Typography>
+                                  <Typography variant='body2' className='text-purple-700 truncate'>
+                                    {result.website.replace(/^https?:\/\//, '')}
+                                  </Typography>
+                                </Box>
+                                <Button
+                                  size='small'
+                                  variant='outlined'
+                                  color='secondary'
+                                  onClick={() => window.open(result.website, '_blank')}
+                                  className='min-w-fit px-2'
+                                >
+                                  <i className='ri-external-link-line text-sm' />
+                                </Button>
+                              </Box>
+                            )}
+
+                            {!result.phone && !result.website && (
+                              <Box className='flex items-center gap-3 p-3 bg-gray-50 rounded-lg border-2 border-dashed border-gray-200'>
+                                <i className='ri-information-line text-gray-400 text-lg' />
+                                <Typography variant='body2' color='text.secondary' className='italic'>
+                                  İletişim bilgisi bulunamadı
+                                </Typography>
+                              </Box>
+                            )}
+                          </Box>
+                        </Grid>
                       </Grid>
+
+                      {/* Alt Bilgi Çubuğu */}
+                      <Box className='mt-4 pt-3 border-t border-gray-100 flex items-center justify-between'>
+                        <Typography variant='caption' color='text.secondary' className='flex items-center gap-1'>
+                          <i className='ri-hashtag text-xs' />
+                          Sıra {index + 1}
+                        </Typography>
+                        
+                        <Box className='flex items-center gap-2'>
+                          {result.isOpen !== undefined && (
+                            <Chip 
+                              label={result.isOpen ? 'Açık' : 'Kapalı'} 
+                              size='small' 
+                              color={result.isOpen ? 'success' : 'error'}
+                              variant='outlined'
+                              className='text-xs'
+                            />
+                          )}
+                          
+                          <Button
+                            size='small'
+                            variant='text'
+                            color='primary'
+                            onClick={() => {
+                              if (result.location?.lat && result.location?.lng) {
+                                window.open(`https://www.google.com/maps/search/?api=1&query=${result.location.lat},${result.location.lng}`, '_blank')
+                              } else {
+                                window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(result.name + ' ' + (result.fullAddress || result.address))}`, '_blank')
+                              }
+                            }}
+                            startIcon={<i className='ri-map-2-line' />}
+                            className='text-xs px-2'
+                          >
+                            Haritada Gör
+                          </Button>
+                        </Box>
+                      </Box>
                     </CardContent>
                   </Card>
                 ))}
                 
                 {searchResults.length > 10 && (
-                  <Alert severity="info">
-                    Ve {searchResults.length - 10} müşteri daha... Tüm sonuçları Excel dosyasında görebilirsiniz.
-                  </Alert>
+                  <Card variant='outlined' className='border-dashed border-2 border-primary/30 bg-gradient-to-r from-blue-50 to-purple-50'>
+                    <CardContent className='p-6 text-center'>
+                      <Box className='flex flex-col items-center gap-3'>
+                        <Box className='flex items-center gap-2'>
+                          <i className='ri-file-list-3-line text-primary text-2xl' />
+                          <Typography variant='h6' color='primary' className='font-medium'>
+                            Daha Fazla Sonuç Mevcut
+                          </Typography>
+                        </Box>
+                        
+                        <Typography variant='body1' color='text.secondary'>
+                          <strong>{searchResults.length - 10}</strong> müşteri daha bulundu! 
+                          Tüm sonuçları Excel dosyasında görebilirsiniz.
+                        </Typography>
+                        
+                        <Box className='flex items-center gap-3 mt-2'>
+                          <Button
+                            variant='contained'
+                            color='success'
+                            onClick={exportToXLSX}
+                            startIcon={<i className='ri-file-excel-2-line' />}
+                            disabled={isExporting}
+                          >
+                            {isExporting ? 'İndiriliyor...' : 'Tüm Sonuçları Excel\'e İndir'}
+                          </Button>
+                          
+                          <Typography variant='body2' color='text.secondary' className='flex items-center gap-1'>
+                            <i className='ri-information-line' />
+                            Toplam: {searchResults.length} müşteri
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
                 )}
               </Box>
             )}
@@ -1089,7 +1252,7 @@ const GMapsCustomerFind = () => {
               </Alert>
 
               <Grid container spacing={2} className='mb-4'>
-                <Grid xs={6} sm={2.4}>
+                <Grid size={{ xs: 6, sm: 2 }}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='success.main'>
                       {importResults.success}
@@ -1099,7 +1262,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid xs={6} sm={2.4}>
+                <Grid size={{ xs: 6, sm: 2 }}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='error.main'>
                       {importResults.error}
@@ -1109,7 +1272,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid xs={6} sm={2.4}>
+                <Grid size={{ xs: 6, sm: 2 }}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='warning.main'>
                       {importResults.duplicate}
@@ -1119,7 +1282,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid xs={6} sm={2.4}>
+                <Grid size={{ xs: 6, sm: 2 }}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='info.main'>
                       {importResults.skipped || 0}
@@ -1129,7 +1292,7 @@ const GMapsCustomerFind = () => {
                     </Typography>
                   </Box>
                 </Grid>
-                <Grid xs={6} sm={2.4}>
+                <Grid size={{ xs: 6, sm: 2 }}>
                   <Box className='text-center p-3 border rounded'>
                     <Typography variant='h4' color='primary.main'>
                       {importResults.total}

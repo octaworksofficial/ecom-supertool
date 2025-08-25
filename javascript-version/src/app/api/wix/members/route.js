@@ -41,6 +41,7 @@ export async function POST(request) {
       if (options?.sort && options.sort.length > 0) {
         // Convert sort array to Wix format
         const sortStr = options.sort.map(s => `${s.fieldName}:${s.order}`).join(',')
+
         queryParams.append('sort', sortStr)
       }
 
@@ -60,6 +61,7 @@ export async function POST(request) {
     
     if (!response.ok) {
       const errorText = await response.text()
+
       console.error('Wix API Error:', errorText)
       
       // Handle specific Wix error codes
@@ -87,6 +89,7 @@ export async function POST(request) {
     }
 
     const data = await response.json()
+
     console.log('Wix API Data:', JSON.stringify(data, null, 2))
 
     // Handle different response structures
@@ -103,6 +106,7 @@ export async function POST(request) {
     
     // Get site info if available
     let siteInfo = null
+
     if (siteId) {
       try {
         const siteResponse = await fetch(`https://www.wixapis.com/site-properties/v4/properties`, {
@@ -114,6 +118,7 @@ export async function POST(request) {
         
         if (siteResponse.ok) {
           const siteData = await siteResponse.json()
+
           siteInfo = {
             displayName: siteData.displayName || 'Wix Site',
             url: siteData.url || 'wix.com'
@@ -133,7 +138,8 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('API Route Error:', error)
-    return NextResponse.json({ 
+    
+return NextResponse.json({ 
       success: false, 
       error: error.message 
     }, { status: 500 })

@@ -1,7 +1,8 @@
 'use client'
 
-import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
+
+import { useRouter } from 'next/navigation'
 
 const DashboardRedirect = () => {
   const router = useRouter()

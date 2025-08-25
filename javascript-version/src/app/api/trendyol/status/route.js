@@ -1,37 +1,44 @@
 import { NextResponse } from 'next/server'
-import { getBotState, getBotStats } from '@/lib/botService'
+import { PrismaClient } from '@prisma/client'
+
+const prisma = new PrismaClient()
 
 export async function GET() {
   try {
-    const botState = getBotState()
-    const botStats = getBotStats()
+    // Veritabanından bot durumunu al
+    const botStatus = await prisma.botStatus.findFirst()
     
-    return NextResponse.json({
-      success: true,
-      isRunning: botState.isRunning,
-      startedAt: botState.startedAt,
-      currentActivity: botState.currentActivity,
-      nextCheckAt: botState.nextCheckAt,
-      settings: botState.settings ? {
-        supplierId: botState.settings.supplierId,
-        autoAnswer: botState.settings.autoAnswer,
-        checkInterval: botState.settings.checkInterval,
-        hasOpenAI: !!botState.settings.openaiApiKey,
-        hasAssistant: !!botState.settings.openaiAssistantId
-      } : null,
-      stats: botStats,
-      lastCheck: new Date().toISOString()
+    // Son 5 aktiviteyi al
+    const recentActivities = await prisma.botActivity.findMany({
+      orderBy: { createdAt: 'desc' },
+      take: 5
     })
     
+    console.log('📊 Status API - Bot Status:', {
+      isRunning: botStatus?.isRunning || false,
+      currentMessage: botStatus?.currentMessage || 'Bot durdu',
+      currentStatus: botStatus?.currentStatus || 'idle'
+    })
+    
+    return NextResponse.json({
+      isRunning: botStatus?.isRunning || false,
+      currentStatus: botStatus?.currentStatus || 'idle',
+      currentMessage: botStatus?.currentMessage || 'Bot durdu',
+      lastCheck: botStatus?.lastCheck?.toISOString() || null,
+      startedAt: botStatus?.startedAt?.toISOString() || null,
+      totalQuestions: 0,
+      answeredQuestions: 0,
+      recentActivities: recentActivities.map(activity => ({
+        status: activity.status,
+        message: activity.message,
+        success: activity.success,
+        createdAt: activity.createdAt.toISOString()
+      }))
+    })
   } catch (error) {
-    console.error('Status check error:', error)
+    console.error('❌ Status kontrol hatası:', error)
     return NextResponse.json(
-      { 
-        success: false, 
-        error: error.message,
-        isRunning: false,
-        lastCheck: new Date().toISOString()
-      }, 
+      { error: 'Status kontrol edilirken hata oluştu' },
       { status: 500 }
     )
   }

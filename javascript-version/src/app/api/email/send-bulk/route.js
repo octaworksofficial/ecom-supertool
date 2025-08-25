@@ -1,6 +1,8 @@
-import { NextResponse } from 'next/server'
-import { google } from 'googleapis'
 import crypto from 'crypto'
+
+import { NextResponse } from 'next/server'
+
+import { google } from 'googleapis'
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -34,18 +36,10 @@ export async function POST(request) {
       isHtml
     })
     
-    // 1. Önce kampanya oluştur
-    const campaign = await prisma.emailCampaign.create({
-      data: {
-        name: campaignName || `Toplu Gönderim - ${new Date().toLocaleDateString('tr-TR')}`,
-        subject: emails[0]?.subject || 'Toplu Email',
-        description: `${emails.length} alıcıya gönderilen toplu email kampanyası`,
-        status: 'sending',
-        sentCount: 0
-      }
-    })
+    // 1. 6 haneli rastgele campaign ID üret
+    const campaignId = Math.floor(100000 + Math.random() * 900000).toString()
     
-    console.log('✅ Campaign created with ID:', campaign.id)
+    console.log('✅ Campaign ID generated:', campaignId)
     
     // 2. OAuth client yapılandır
     const oauth2Client = new google.auth.OAuth2(
@@ -79,6 +73,7 @@ export async function POST(request) {
       try {
         // Link tracking ekle (HTML için)
         let finalContent = emailData.content
+
         if (isHtml) {
           finalContent = addTrackingToLinks(emailData.content, trackingId, baseUrl)
         }
@@ -87,6 +82,7 @@ export async function POST(request) {
         const encodedSubject = encodeEmailHeader(emailData.subject)
         
         let emailLines
+
         if (isHtml) {
           emailLines = [
             `To: ${emailData.to}`,
@@ -110,6 +106,7 @@ export async function POST(request) {
         }
         
         const email = emailLines.join('\r\n')
+
         const encodedEmail = Buffer.from(email, 'utf8')
           .toString('base64')
           .replace(/\+/g, '-')
@@ -123,30 +120,60 @@ export async function POST(request) {
         })
         
         // Database'e kaydet - AYNI CAMPAIGN ID ile
-        await prisma.emailSend.create({
+        console.log('💾 Saving email to database:', {
+          campaignId: campaignId,
+          customerId: emailData.customerId,
+          toEmail: emailData.to,
+          subject: emailData.subject,
+          trackingId: trackingId,
+          status: 'sent'
+        })
+        
+        const savedEmail = await prisma.emailSend.create({
           data: {
-            campaignId: campaign.id, // 🎯 Aynı campaign ID
-            customerId: emailData.customerId ? parseInt(emailData.customerId) : null,
-            emailAddress: emailData.to,
+            campaignId: campaignId, // 🎯 6 haneli rastgele campaign ID
+            customerId: emailData.customerId || null,
+            toEmail: emailData.to,
             subject: emailData.subject,
-            messageId: result.data.id,
-            trackingId: trackingId,
-            htmlContent: finalContent, // HTML content kaydet
-            status: 'sent'
+            content: finalContent,
+            isHtml: isHtml || true,
+            status: 'sent',
+            sentAt: new Date(),
+            trackingId: trackingId
           }
+        })
+        
+        console.log('✅ Email saved to database:', {
+          id: savedEmail.id,
+          campaignId: savedEmail.campaignId,
+          toEmail: savedEmail.toEmail,
+          createdAt: savedEmail.createdAt
         })
         
         // Customer interaction ekle
         if (emailData.customerId) {
           try {
-            await prisma.customerInteraction.create({
+            console.log('📝 Creating customer interaction:', {
+              customerId: emailData.customerId,
+              type: 'EMAIL',
+              campaignId: campaignId,
+              subject: emailData.subject
+            })
+            
+            const interaction = await prisma.customerInteraction.create({
               data: {
-                customerId: parseInt(emailData.customerId),
+                customerId: emailData.customerId,
                 type: 'EMAIL',
                 subject: 'Toplu Email Kampanyası',
-                content: `Kampanya: ${campaign.name} - Konu: ${emailData.subject}`,
+                content: `Kampanya ID: ${campaignId} - Konu: ${emailData.subject}`,
                 date: new Date()
               }
+            })
+            
+            console.log('✅ Customer interaction created:', {
+              id: interaction.id,
+              customerId: interaction.customerId,
+              type: interaction.type
             })
           } catch (interactionError) {
             console.error('❌ Customer interaction failed:', interactionError)
@@ -165,6 +192,38 @@ export async function POST(request) {
         
       } catch (emailError) {
         console.error(`❌ Email ${i + 1} failed:`, emailError)
+        
+        // Failed email'i de database'e kaydet
+        try {
+          console.log('💾 Saving failed email to database:', {
+            campaignId: campaignId,
+            toEmail: emailData.to,
+            error: emailError.message
+          })
+          
+          const failedEmail = await prisma.emailSend.create({
+            data: {
+              campaignId: campaignId,
+              customerId: emailData.customerId || null,
+              toEmail: emailData.to,
+              subject: emailData.subject,
+              content: emailData.content,
+              isHtml: isHtml || true,
+              status: 'failed',
+              errorMessage: emailError.message,
+              createdAt: new Date()
+            }
+          })
+          
+          console.log('✅ Failed email saved to database:', {
+            id: failedEmail.id,
+            status: failedEmail.status,
+            errorMessage: failedEmail.errorMessage
+          })
+        } catch (saveError) {
+          console.error('❌ Failed to save failed email to database:', saveError)
+        }
+        
         results.push({
           to: emailData.to,
           success: false,
@@ -179,18 +238,8 @@ export async function POST(request) {
       }
     }
     
-    // 5. Kampanya durumunu güncelle
-    await prisma.emailCampaign.update({
-      where: { id: campaign.id },
-      data: {
-        status: 'completed',
-        sentCount: successCount,
-        completedAt: new Date()
-      }
-    })
-    
     console.log('🎯 Bulk email campaign completed:', {
-      campaignId: campaign.id,
+      campaignId: campaignId,
       totalEmails: emails.length,
       successCount,
       errorCount
@@ -198,8 +247,8 @@ export async function POST(request) {
     
     return NextResponse.json({
       success: true,
-      campaignId: campaign.id,
-      campaignName: campaign.name,
+      campaignId: campaignId,
+      campaignName: campaignName || 'Toplu Gönderim',
       totalEmails: emails.length,
       successCount,
       errorCount,
@@ -208,7 +257,8 @@ export async function POST(request) {
     
   } catch (error) {
     console.error('❌ Bulk email send error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'Toplu email gönderilemedi', details: error.message },
       { status: 500 }
     )
@@ -218,11 +268,15 @@ export async function POST(request) {
 // Helper functions
 function addTrackingToLinks(content, trackingId, baseUrl) {
   const trackingUrl = `${baseUrl}/api/email/track/click/${trackingId}`
-  return content.replace(
+
+  
+return content.replace(
     /<a\s+([^>]*href\s*=\s*["']([^"']+)["'][^>]*)>/gi,
     (match, attributes, originalUrl) => {
       const trackedUrl = `${trackingUrl}?url=${encodeURIComponent(originalUrl)}`
-      return `<a ${attributes.replace(/href\s*=\s*["'][^"']+["']/i, `href="${trackedUrl}"`)}>` 
+
+      
+return `<a ${attributes.replace(/href\s*=\s*["'][^"']+["']/i, `href="${trackedUrl}"`)}>` 
     }
   )
 }
@@ -230,7 +284,11 @@ function addTrackingToLinks(content, trackingId, baseUrl) {
 function encodeEmailHeader(text) {
   if (/[^\x00-\x7F]/.test(text)) {
     const encoded = Buffer.from(text, 'utf8').toString('base64')
-    return `=?UTF-8?B?${encoded}?=`
+
+    
+return `=?UTF-8?B?${encoded}?=`
   }
-  return text
+
+  
+return text
 }

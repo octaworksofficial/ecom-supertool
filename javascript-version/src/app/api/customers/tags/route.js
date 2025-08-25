@@ -1,6 +1,7 @@
 // Customer Tags API - Tag Management
-import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -22,7 +23,8 @@ export async function GET() {
     })
   } catch (error) {
     console.error('❌ Etiket listesi hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { success: false, error: 'Etiket listesi alınamadı' },
       { status: 500 }
     )

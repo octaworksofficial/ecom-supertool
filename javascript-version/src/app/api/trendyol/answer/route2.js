@@ -31,11 +31,13 @@ async function sendAnswerToTrendyol(supplierId, apiKey, apiSecret, questionId, a
 
     if (!response.ok) {
       const errorText = await response.text()
+
       console.error('Trendyol Answer API Error:', errorText)
       throw new Error(`Trendyol API Error: ${response.status} ${response.statusText} - ${errorText}`)
     }
 
     const data = await response.json()
+
     console.log('✅ Answer sent successfully to Trendyol')
     
     return {
@@ -86,6 +88,7 @@ export async function POST(request) {
 
     // Yanıt template'ini uygula (eğer varsa)
     let finalAnswer = customAnswer.trim()
+
     if (settings.answerTemplate && settings.answerTemplate.includes('{answer}')) {
       finalAnswer = settings.answerTemplate.replace('{answer}', customAnswer.trim())
     }

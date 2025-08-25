@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+
 import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
@@ -12,6 +13,7 @@ export async function GET(request) {
     
     // Tarih filtreleme
     const dateFilter = new Date()
+
     dateFilter.setDate(dateFilter.getDate() - timeFilter)
 
     // Temel veriler
@@ -26,6 +28,7 @@ export async function GET(request) {
     
     // ID'e göre gruplama
     const campaigns = {}
+
     allEmails.forEach(email => {
       if (!campaigns[email.campaignId]) {
         campaigns[email.campaignId] = {
@@ -38,10 +41,12 @@ export async function GET(request) {
           createdAt: email.sentAt
         }
       }
+
       campaigns[email.campaignId].emails.push(email)
       campaigns[email.campaignId].totalEmails++
       if (email.firstOpenedAt) campaigns[email.campaignId].totalOpened++
       campaigns[email.campaignId].totalClicks += email.clickCount || 0
+
       if (email.sentAt < campaigns[email.campaignId].createdAt) {
         campaigns[email.campaignId].createdAt = email.sentAt
       }
@@ -51,6 +56,7 @@ export async function GET(request) {
     const campaignList = Object.values(campaigns).map((campaign, index) => {
       const openRate = campaign.totalEmails > 0 ? 
         ((campaign.totalOpened / campaign.totalEmails) * 100).toFixed(1) : 0
+
       const clickRate = campaign.totalEmails > 0 ? 
         ((campaign.totalClicks / campaign.totalEmails) * 100).toFixed(1) : 0
       
@@ -81,8 +87,10 @@ export async function GET(request) {
 
     // Grafik için günlük veriler (basit)
     const chartData = []
+
     for (let i = Math.min(timeFilter, 7) - 1; i >= 0; i--) {
       const date = new Date()
+
       date.setDate(date.getDate() - i)
       const dayStart = new Date(date.setHours(0, 0, 0, 0))
       const dayEnd = new Date(date.setHours(23, 59, 59, 999))
@@ -122,7 +130,8 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('❌ Email campaign statistics error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { error: 'İstatistikler yüklenemedi', details: error.message },
       { status: 500 }
     )

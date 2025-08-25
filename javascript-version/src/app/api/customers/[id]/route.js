@@ -1,15 +1,16 @@
 // Single Customer API - GET, PUT, DELETE Operations
-import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
 // 📄 GET - Tek müşteri detayını getir
 export async function GET(request, { params }) {
   try {
-    const id = parseInt(params.id)
+    const id = params.id
     
-    if (!id || isNaN(id)) {
+    if (!id) {
       return NextResponse.json(
         { success: false, error: 'Geçerli müşteri ID gerekli' },
         { status: 400 }
@@ -39,7 +40,8 @@ export async function GET(request, { params }) {
     })
   } catch (error) {
     console.error('❌ Müşteri detay hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { success: false, error: 'Müşteri detayı alınamadı' },
       { status: 500 }
     )
@@ -50,9 +52,9 @@ export async function GET(request, { params }) {
 export async function PUT(request, { params }) {
   try {
     const body = await request.json()
-    const id = parseInt(params.id)
+    const id = params.id
     
-    if (!id || isNaN(id)) {
+    if (!id) {
       return NextResponse.json(
         { error: 'Geçerli Customer ID gerekli' },
         { status: 400 }
@@ -101,7 +103,8 @@ export async function PUT(request, { params }) {
     })
 
     console.log('✅ Customer updated:', customer.id)
-    return NextResponse.json(customer)
+    
+return NextResponse.json(customer)
 
   } catch (error) {
     console.error('❌ Customer update error:', error)
@@ -131,9 +134,9 @@ export async function PUT(request, { params }) {
 // 🗑️ DELETE - Müşteriyi sil
 export async function DELETE(request, { params }) {
   try {
-    const id = parseInt(params.id)
+    const id = params.id
     
-    if (!id || isNaN(id)) {
+    if (!id) {
       return NextResponse.json(
         { success: false, error: 'Geçerli müşteri ID gerekli' },
         { status: 400 }
@@ -163,7 +166,8 @@ export async function DELETE(request, { params }) {
     })
   } catch (error) {
     console.error('❌ Müşteri silme hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { success: false, error: 'Müşteri silinemedi' },
       { status: 500 }
     )

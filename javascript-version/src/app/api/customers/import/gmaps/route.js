@@ -1,6 +1,7 @@
 // Google Maps to Customer Import API
-import { PrismaClient } from '@prisma/client'
 import { NextResponse } from 'next/server'
+
+import { PrismaClient } from '@prisma/client'
 
 const prisma = new PrismaClient()
 
@@ -121,7 +122,8 @@ export async function POST(request) {
     })
   } catch (error) {
     console.error('❌ Google Maps import hatası:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { success: false, error: 'İçe aktarma işlemi başarısız' },
       { status: 500 }
     )

@@ -1124,10 +1124,8 @@ const TopluEposta = () => {
       let successCount = 0
       let errorCount = 0
       
-      // Timestamp-based ID to avoid hydration mismatch
-      const campaignId = Math.floor(Math.random() * 2147483647) // SQLite INT sınırları içinde random ID
-
-    
+      // 6 haneli rastgele campaign ID üret
+      const campaignId = Math.floor(100000 + Math.random() * 900000).toString()
       
       console.log('🚀 Starting bulk email campaign:', {
         campaignId,
@@ -1136,9 +1134,8 @@ const TopluEposta = () => {
         timestamp: new Date().toISOString()
       })
 
-      for (let i = 0; i < selectedCustomerData.length; i++) {
-        const customer = selectedCustomerData[i]
-        
+      // Tüm email'leri hazırla
+      const emailsToSend = selectedCustomerData.map(customer => {
         // Template değişkenlerini değiştir
         const personalizedSubject = emailData.subject
           .replace(/{company}/g, customer.companyName || '')
@@ -1159,60 +1156,59 @@ const TopluEposta = () => {
             .replace(/\[Telefon Numaranız\]/g, '+90 XXX XXX XX XX')
         }
         
-        try {
-          const response = await fetch('/api/email/send-oauth', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-              to: customer.email,
-              subject: personalizedSubject,
-              content: personalizedContent,
-              isHtml: true, // HTML Editör kapalı olsa da HTML olarak gönder
-              isRawHtml: isRawHtmlMode, // Raw HTML flag
-              tokens: oauthTokens,
-              customerId: customer.id,
-              campaignId: parseInt(campaignId),
-              htmlContent: personalizedContent
-            }),
-          })
-
-          if (response.ok) {
-            successCount++
-            console.log(`✅ Email gönderildi: ${customer.email}`)
-          } else {
-            errorCount++
-            const errorData = await response.json()
-            
-            if (response.status === 401) {
-              // Token süresi dolmuş
-              setError('Token süresi dolmuş, yeniden yetkilendirme gerekli')
-              setIsOauthAuthorized(false)
-              setOauthTokens(null)
-              localStorage.removeItem('gmail_oauth_tokens')
-              break
-            }
-            
-            console.error(`❌ Email gönderilemedi: ${customer.email}`, errorData)
-          }
-        } catch (emailError) {
-          errorCount++
-          console.error(`❌ Email gönderim hatası: ${customer.email}`, emailError)
+        return {
+          to: customer.email,
+          subject: personalizedSubject,
+          content: personalizedContent,
+          customerId: customer.id
         }
-
-        setSendingProgress(((i + 1) / selectedCustomerData.length) * 100)
+      })
+      
+      try {
+        setSendingProgress(25) // Progress update
         
-        // Rate limiting - Gmail API için 1 saniye bekle
-        if (i < selectedCustomerData.length - 1) {
-          await new Promise(resolve => setTimeout(resolve, 1000))
-        }
-      }
+        const response = await fetch('/api/email/send-oauth', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            emails: emailsToSend, // 🎯 Bulk email array
+            campaignName: `Toplu Gönderim - ${new Date().toLocaleDateString('tr-TR')}`,
+            isHtml: true,
+            tokens: oauthTokens
+          }),
+        })
 
-      if (successCount > 0) {
-        setSuccess(`✅ ${successCount} müşteriye email başarıyla gönderildi!${errorCount > 0 ? ` (${errorCount} hata)` : ''}`)
-      } else {
-        setError(`❌ Hiçbir email gönderilemedi. ${errorCount} hata oluştu.`)
+        setSendingProgress(90) // Progress update
+        
+        if (response.ok) {
+          const result = await response.json()
+          
+          if (result.success) {
+            successCount = result.successCount || 0
+            errorCount = result.errorCount || 0
+            
+            setSuccess(`✅ ${successCount} müşteriye email başarıyla gönderildi!${errorCount > 0 ? ` (${errorCount} hata)` : ''} - Kampanya ID: ${result.campaignId}`)
+          } else {
+            setError(`❌ Email gönderimi başarısız: ${result.error}`)
+          }
+        } else {
+          const errorData = await response.json()
+          
+          if (response.status === 401) {
+            // Token süresi dolmuş
+            setError('Token süresi dolmuş, yeniden yetkilendirme gerekli')
+            setIsOauthAuthorized(false)
+            setOauthTokens(null)
+            localStorage.removeItem('gmail_oauth_tokens')
+          } else {
+            setError(`❌ Bulk email gönderimi başarısız: ${errorData.error || 'Bilinmeyen hata'}`)
+          }
+        }
+      } catch (error) {
+        console.error('Bulk email gönderim hatası:', error)
+        setError('Email gönderimi sırasında hata oluştu: ' + error.message)
       }
       
       setSelectedCustomers([])

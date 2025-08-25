@@ -60,6 +60,7 @@ export async function POST(request) {
       }
       
       const thread = await threadResponse.json()
+
       console.log('📝 Thread created:', thread.id)
       
       // Run oluştur
@@ -76,10 +77,12 @@ export async function POST(request) {
       }
       
       const run = await runResponse.json()
+
       console.log('🏃 Run created:', run.id)
       
       // Run tamamlanmasını bekle
       let runStatus = run
+
       while (runStatus.status === 'queued' || runStatus.status === 'in_progress') {
         await new Promise(resolve => setTimeout(resolve, 1000))
         
@@ -152,11 +155,13 @@ Yanıtın:
       
       if (!response.ok) {
         const errorText = await response.text()
+
         console.error('OpenAI API Error:', errorText)
         throw new Error(`OpenAI API Error: ${response.status} ${response.statusText}`)
       }
       
       const data = await response.json()
+
       console.log('✅ Chat Completion successful')
       
       aiAnswer = data.choices[0].message.content

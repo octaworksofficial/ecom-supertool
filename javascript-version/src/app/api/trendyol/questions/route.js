@@ -59,7 +59,8 @@ async function fetchTrendyolQuestions(supplierId, apiKey, apiSecret, startDate, 
     const credentials = Buffer.from(`${apiKey}:${apiSecret}`).toString('base64')
     
     // Trendyol API URL'si - sayfalama parametreleri ile
-    const url = `https://apigw.trendyol.com/integration/qna/sellers/${supplierId}/questions/filter?page=${page}&size=${size}&orderByDirection=DESC&orderByField=CreatedDate`
+    const url = `https://apigw.trendyol.com/integration/qna/sellers/${supplierId}/questions/filter?orderByDirection=DESC`
+
     console.log('Fetching from Trendyol API:', { 
       supplierId, 
       page, 
@@ -76,16 +77,19 @@ async function fetchTrendyolQuestions(supplierId, apiKey, apiSecret, startDate, 
         'Accept': 'application/json',
         'Cache-Control': 'no-cache'
       },
+
       // Not: fetch API'de timeout property'si desteklenmez, AbortController kullanmalıyız
     })
 
     if (!response.ok) {
       const errorText = await response.text()
+
       console.error('Trendyol API Error Response:', errorText)
       throw new Error(`Trendyol API Error: ${response.status} ${response.statusText}`)
     }
 
     const data = await response.json()
+
     console.log('Trendyol API Response:', { totalElements: data.totalElements, contentLength: data.content?.length })
     
     return {
@@ -142,6 +146,7 @@ export async function GET(request) {
       try {
         console.log('Using real Trendyol API with supplier:', supplierId, 'page:', page, 'size:', size)
         const apiResult = await fetchTrendyolQuestions(supplierId, apiKey, apiSecret, startDate, endDate, page, size)
+
         questions = formatTrendyolQuestions(apiResult.content)
         
         console.log(`✅ Fetched ${questions.length} questions from Trendyol API (Total: ${apiResult.totalElements})`)
@@ -220,7 +225,8 @@ export async function GET(request) {
 
   } catch (error) {
     console.error('Questions API Error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { 
         success: false, 
         error: error.message,
@@ -262,7 +268,8 @@ export async function POST(request) {
 
   } catch (error) {
     console.error('Question Detail API Error:', error)
-    return NextResponse.json(
+    
+return NextResponse.json(
       { 
         success: false, 
         error: error.message

@@ -52,7 +52,7 @@ src/assets/iconify-icons/generated-icons.js
 #prisma/prisma/dev.db
 # Allow migrations but ignore db files
 !prisma/migrations/
-prisma/migrations/**/*.db
+#prisma/migrations/**/*.db
 
 # Database backups
 *.sql

@@ -4,7 +4,7 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "build": "prisma generate && next build",
+    "build": "prisma generate && prisma migrate deploy && next build",
     "start": "next start",
     "dev": "next dev",
     "lint": "next lint",
@@ -13,7 +13,9 @@
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.js",
     "postinstall": "prisma generate",
     "seed": "node scripts/seed-customers.js",
-    "backup": "node scripts/backup-db.js"
+    "backup": "node scripts/backup-db.js",
+    "db:migrate": "prisma migrate deploy",
+    "db:seed": "prisma db seed"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

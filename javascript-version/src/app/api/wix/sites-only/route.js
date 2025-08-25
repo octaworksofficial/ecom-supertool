@@ -154,19 +154,3 @@ return Response.json(
     )
   }
 }
-
-<Grid item xs={12} md={6}>
-  <Box className='flex gap-2'>
-    {/* Mevcut site input/select */}
-    
-    <Button
-      variant="outlined"
-      onClick={fetchWixSitesOnly}
-      disabled={!wixApiKey || isLoadingSites}
-      className="min-w-fit"
-      title="Sadece Siteleri Çek"
-    >
-      {isLoadingSites ? <CircularProgress size={20} /> : <i className='ri-global-line' />}
-    </Button>
-  </Box>
-</Grid>

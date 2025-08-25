@@ -44,11 +44,18 @@ src/assets/iconify-icons/generated-icons.js
 # Database files
 *.db
 *.db-journal
+*.sqlite
+*.sqlite3
 prisma/dev.db
 prisma/dev*.db
 prisma/prisma/dev.db
+prisma/**/*.db
+**/prisma/*.db
 
 # Database backups
 *.sql
 database_*.sql
 customer_data_*.sql
+railway_backup_*.sql
+backup_*.sql
+**/backup*.sql

@@ -57,9 +57,10 @@ export async function POST(request) {
     const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
     
     // 3. Base URL for tracking
-    const protocol = request.headers.get('x-forwarded-proto') || 'http'
-    const host = request.headers.get('host') || 'localhost:3000'
-    const baseUrl = `${protocol}://${host}`
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 
+                   process.env.NEXTAUTH_URL || 
+                   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : null) ||
+                   `${request.headers.get('x-forwarded-proto') || 'http'}://${request.headers.get('host') || 'localhost:3000'}`
     
     const results = []
     let successCount = 0

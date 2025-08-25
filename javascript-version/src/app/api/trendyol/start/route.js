@@ -135,7 +135,7 @@ async function processNextQuestion(settings, botStatusId) {
     await updateBotStatus(botStatusId, 'checking', 'Tablodaki sorular kontrol ediliyor...')
     
     // Frontend'deki mevcut soruları çek
-    const questionsResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/trendyol-questions`)
+    const questionsResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/trendyol-questions`)
     
     if (!questionsResponse.ok) {
       await updateBotStatus(botStatusId, 'error', 'Tablodaki sorular alınamadı')
@@ -192,7 +192,7 @@ async function callQuickAnswerQuestion(question, settings, botStatusId) {
     await updateBotStatus(botStatusId, 'ai_generating', 'AI yanıt üretiliyor...')
     
     // 1. AI'dan yanıt al
-    const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/openai/generate-answer`, {
+    const aiResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/openai/generate-answer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -212,7 +212,7 @@ async function callQuickAnswerQuestion(question, settings, botStatusId) {
     await updateBotStatus(botStatusId, 'sending_answer', 'Yanıt Trendyol\'a gönderiliyor...')
     
     // 2. Yanıtı Trendyol'a gönder
-    const sendResponse = await fetch(`${process.env.NEXT_PUBLIC_BASE_URL || 'http://localhost:3000'}/api/trendyol/answer`, {
+    const sendResponse = await fetch(`${process.env.NEXT_PUBLIC_APP_URL || process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/trendyol/answer`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ 

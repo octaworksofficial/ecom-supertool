@@ -12,7 +12,8 @@
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.js",
     "postinstall": "prisma generate",
-    "seed": "node scripts/seed-customers.js"
+    "seed": "node scripts/seed-customers.js",
+    "backup": "node scripts/backup-db.js"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

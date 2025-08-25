@@ -9,6 +9,12 @@ async function main() {
     return;
   }
 
+  // Check if seeding is disabled
+  if (process.env.DISABLE_SEED === 'true') {
+    console.log('Seeding disabled by DISABLE_SEED environment variable.');
+    return;
+  }
+
   let prisma;
   try {
     prisma = new PrismaClient();

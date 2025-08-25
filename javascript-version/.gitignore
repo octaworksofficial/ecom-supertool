@@ -40,3 +40,15 @@ next-env.d.ts
 src/assets/iconify-icons/generated-icons.js
 
 /src/generated/prisma
+
+# Database files
+*.db
+*.db-journal
+prisma/dev.db
+prisma/dev*.db
+prisma/prisma/dev.db
+
+# Database backups
+*.sql
+database_*.sql
+customer_data_*.sql

@@ -11,7 +11,7 @@
     "lint:fix": "next lint --fix",
     "format": "prettier --write \"src/**/*.{js,jsx,ts,tsx}\"",
     "build:icons": "tsx src/assets/iconify-icons/bundle-icons-css.js",
-    "postinstall": "prisma generate",
+    "postinstall": "prisma generate && prisma db push",
     "seed": "node scripts/seed-customers.js",
     "backup": "node scripts/backup-db.js",
     "db:migrate": "prisma migrate deploy",

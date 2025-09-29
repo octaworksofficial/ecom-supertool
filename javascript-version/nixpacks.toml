@@ -1,0 +1,24 @@
+# Nixpacks configuration for Railway deployment
+
+[phases.setup]
+nixPkgs = ["nodejs_18", "openssl", "sqlite"]
+
+[phases.install]
+cmds = [
+    "rm -rf node_modules/.cache || true",
+    "npm ci --prefer-offline --no-audit --omit=dev",
+    "npx prisma generate"
+]
+
+[phases.build] 
+cmds = [
+    "npx prisma db push --accept-data-loss",
+    "npm run build"
+]
+
+[start]
+cmd = "npm start"
+
+[variables]
+NODE_ENV = "production"
+PRISMA_CLI_QUERY_ENGINE_TYPE = "binary"

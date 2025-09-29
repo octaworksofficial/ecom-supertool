@@ -1,12 +1,13 @@
-# Nixpacks configuration for Railway deployment
+# Nixpacks configuration for Railway deployment - No Cache Mounts
 
 [phases.setup]
 nixPkgs = ["nodejs_18", "openssl", "sqlite"]
 
 [phases.install]
 cmds = [
-    "rm -rf node_modules/.cache || true",
-    "npm ci --prefer-offline --no-audit --omit=dev",
+    "export npm_config_cache=/tmp/npm-cache",
+    "mkdir -p /tmp/npm-cache", 
+    "npm ci --prefer-offline --no-audit --omit=dev --cache=/tmp/npm-cache",
     "npx prisma generate"
 ]
 
@@ -22,3 +23,7 @@ cmd = "npm start"
 [variables]
 NODE_ENV = "production"
 PRISMA_CLI_QUERY_ENGINE_TYPE = "binary"
+
+# Disable Docker cache mounts to prevent EBUSY errors
+[build]
+cmd = "echo 'Using custom build process'"

@@ -12,7 +12,7 @@ const nextConfig = {
     serverComponentsExternalPackages: ['@prisma/client', 'prisma']
   },
   // Railway optimizations
-  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined
+  output: 'standalone'
 }
 
 export default nextConfig

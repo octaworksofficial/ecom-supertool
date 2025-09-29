@@ -4,7 +4,7 @@
   "license": "Commercial",
   "private": true,
   "scripts": {
-    "build": "prisma generate && prisma migrate deploy && next build",
+    "build": "next build",
     "start": "next start",
     "dev": "next dev",
     "lint": "next lint",
@@ -15,7 +15,8 @@
     "seed": "node scripts/seed-customers.js",
     "backup": "node scripts/backup-db.js",
     "db:migrate": "prisma migrate deploy",
-    "db:seed": "prisma db seed"
+    "db:seed": "prisma db seed",
+    "db:push": "prisma db push"
   },
   "dependencies": {
     "@emotion/cache": "^11.14.0",

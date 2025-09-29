@@ -7,7 +7,12 @@ const nextConfig = {
   },
   typescript: {
     ignoreBuildErrors: true,
-  }
+  },
+  experimental: {
+    serverComponentsExternalPackages: ['@prisma/client', 'prisma']
+  },
+  // Railway optimizations
+  output: process.env.NODE_ENV === 'production' ? 'standalone' : undefined
 }
 
 export default nextConfig

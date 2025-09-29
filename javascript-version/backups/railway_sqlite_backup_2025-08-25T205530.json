@@ -1,0 +1,27 @@
+{
+  "timestamp": "2025-08-25T20:55:30.859Z",
+  "database_type": "sqlite",
+  "database_path": "./prisma/dev.db",
+  "version": "2.0",
+  "backup_method": "json_export",
+  "tables": {
+    "customers": [],
+    "customerInteractions": [],
+    "customerTags": [],
+    "emailSends": [],
+    "emailTemplates": [],
+    "trendyolSettings": [],
+    "botActivities": [],
+    "botStatus": []
+  },
+  "stats": {
+    "total_customers": 0,
+    "total_interactions": 0,
+    "total_tags": 0,
+    "total_emails": 0,
+    "total_templates": 0,
+    "total_trendyol_settings": 0,
+    "total_bot_activities": 0,
+    "total_bot_status": 0
+  }
+}

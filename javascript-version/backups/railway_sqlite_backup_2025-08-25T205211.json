@@ -1,0 +1,136 @@
+{
+  "timestamp": "2025-08-25T20:52:11.537Z",
+  "database_type": "sqlite",
+  "database_path": "./prisma/dev.db",
+  "version": "2.0",
+  "backup_method": "json_export",
+  "tables": {
+    "customers": [
+      {
+        "id": "cmer92rjx0006i27gg4eldndp",
+        "companyName": "asdasdasd",
+        "contactName": null,
+        "email": null,
+        "phone": null,
+        "address": null,
+        "city": null,
+        "country": null,
+        "website": null,
+        "source": "MANUAL",
+        "status": "ACTIVE",
+        "notes": null,
+        "createdAt": "2025-08-25T15:06:35.133Z",
+        "updatedAt": "2025-08-25T15:38:14.333Z"
+      }
+    ],
+    "customerInteractions": [
+      {
+        "id": "cmer92uuj0008i27g5mij8i7k",
+        "customerId": "cmer92rjx0006i27gg4eldndp",
+        "type": "NOTE",
+        "subject": "asdasdasdasd",
+        "content": null,
+        "date": "2025-08-25T15:06:39.383Z",
+        "createdAt": "2025-08-25T15:06:39.403Z"
+      },
+      {
+        "id": "cmera7ghd0001i2k92fpgt2n0",
+        "customerId": "cmer92rjx0006i27gg4eldndp",
+        "type": "MEETING",
+        "subject": "asdsadasd",
+        "content": null,
+        "date": "2025-08-25T15:38:13.661Z",
+        "createdAt": "2025-08-25T15:38:13.680Z"
+      }
+    ],
+    "customerTags": [],
+    "emailSends": [],
+    "emailTemplates": [
+      {
+        "id": "cmer8zh1x0003i27ge5qt41vn",
+        "name": "Hoş Geldin Mesajı",
+        "subject": "Hoş Geldiniz! - {company}",
+        "content": "<h2>Merhaba {contactName},</h2>\n    <p><strong>{company}</strong> firmasına hoş geldiniz!</p>\n    <p>Size en iyi hizmeti sunmak için buradayız. Herhangi bir sorunuz olduğunda bizimle iletişime geçmekten çekinmeyin.</p>\n    <p>Saygılarımızla,<br>Ecom SuperTool Ekibi</p>",
+        "isHtml": true,
+        "category": "Karşılama",
+        "description": null,
+        "createdAt": "2025-08-25T15:04:01.557Z",
+        "updatedAt": "2025-08-25T15:04:01.557Z"
+      },
+      {
+        "id": "cmer8zh1x0004i27g9ibmuttg",
+        "name": "Ürün Tanıtımı",
+        "subject": "Yeni Ürünlerimiz - Özel Fırsat!",
+        "content": "<h2>Değerli {contactName},</h2>\n    <p>Yeni ürün gamımızı tanıtmaktan mutluluk duyuyoruz!</p>\n    <ul>\n      <li>✨ Yeni özellikler</li>\n      <li>💰 Özel indirimler</li>\n      <li>🚀 Hızlı teslimat</li>\n    </ul>\n    <p>Detaylar için hemen iletişime geçin!</p>\n    <p>İyi günler dileriz.</p>",
+        "isHtml": true,
+        "category": "Pazarlama",
+        "description": null,
+        "createdAt": "2025-08-25T15:04:01.557Z",
+        "updatedAt": "2025-08-25T15:04:01.557Z"
+      },
+      {
+        "id": "cmer8zh1x0005i27gpjvs2wix",
+        "name": "Takip Mesajı",
+        "subject": "Görüşmemizin Takibi",
+        "content": "Merhaba {contactName},\n\nGeçen hafta {company} ile yaptığımız görüşme için teşekkür ederiz.\n\nKonuştuğumuz konular:\n- Ürün detayları\n- Fiyat bilgisi\n- Teslimat süreci\n\nBaşka sorularınız varsa lütfen bizimle iletişime geçin.\n\nSaygılarımızla,\nEcom SuperTool",
+        "isHtml": false,
+        "category": "Takip",
+        "description": null,
+        "createdAt": "2025-08-25T15:04:01.557Z",
+        "updatedAt": "2025-08-25T15:04:01.557Z"
+      },
+      {
+        "id": "cmer932yd0009i27gcd8saa30",
+        "name": "taslakkkkk2",
+        "subject": "taslakkkkk",
+        "content": "<p>asdasda</p>",
+        "isHtml": true,
+        "category": "General",
+        "description": null,
+        "createdAt": "2025-08-25T15:06:49.910Z",
+        "updatedAt": "2025-08-25T15:06:55.384Z"
+      },
+      {
+        "id": "cmerlalak0001i2rcfzeadbw3",
+        "name": "asdasd",
+        "subject": "asdas",
+        "content": "<p>sadasdasd</p>",
+        "isHtml": true,
+        "category": "General",
+        "description": "asdasd",
+        "createdAt": "2025-08-25T20:48:35.661Z",
+        "updatedAt": "2025-08-25T20:48:35.661Z"
+      }
+    ],
+    "trendyolSettings": [
+      {
+        "id": "cmerla6py0000i2rcvieyd1gy",
+        "sellerId": "",
+        "apiKey": "",
+        "secretKey": "",
+        "checkInterval": 30,
+        "openaiApiKey": "",
+        "openaiModel": "gpt-4o",
+        "openaiMaxTokens": 1000,
+        "openaiTemperature": 0.7,
+        "assistantId": "",
+        "answerTemplate": "Merhaba,\n\nSorunuz için teşekkür ederiz. \n\n{answer}\n\nBaşka sorularınız için her zaman buradayız.\n\nİyi günler dileriz.",
+        "isActive": false,
+        "createdAt": "2025-08-25T20:48:16.775Z",
+        "updatedAt": "2025-08-25T20:48:16.775Z"
+      }
+    ],
+    "botActivities": [],
+    "botStatus": []
+  },
+  "stats": {
+    "total_customers": 1,
+    "total_interactions": 2,
+    "total_tags": 0,
+    "total_emails": 0,
+    "total_templates": 5,
+    "total_trendyol_settings": 1,
+    "total_bot_activities": 0,
+    "total_bot_status": 0
+  }
+}

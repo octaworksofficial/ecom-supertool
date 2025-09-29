@@ -1,17 +1,20 @@
 import { NextResponse } from 'next/server'
 import { PrismaClient } from '@prisma/client'
 
-const prisma = new PrismaClient()
-
 export async function GET() {
+  let prisma
+  
   try {
-    // Check if user is authenticated (optional security)
-    // const session = await getServerSession(authOptions)
-    // if (!session) {
-    //   return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    // }
-
-    console.log('Creating database backup...')
+    console.log('🚀 Creating database backup...')
+    console.log('📍 Environment:', process.env.NODE_ENV)
+    console.log('🗄️ Database URL:', process.env.DATABASE_URL || 'Not set')
+    
+    prisma = new PrismaClient({
+      log: ['error', 'warn']
+    })
+    
+    await prisma.$connect()
+    console.log('✅ Database connected successfully')
     
     const [
       customers,
@@ -74,12 +77,19 @@ export async function GET() {
     })
 
   } catch (error) {
-    console.error('Backup error:', error)
+    console.error('❌ Backup error:', error)
     return NextResponse.json(
-      { error: 'Backup failed', message: error.message },
+      { 
+        error: 'Backup failed', 
+        message: error.message,
+        environment: process.env.NODE_ENV,
+        databaseUrl: process.env.DATABASE_URL ? 'set' : 'not set'
+      },
       { status: 500 }
     )
   } finally {
-    await prisma.$disconnect()
+    if (prisma) {
+      await prisma.$disconnect()
+    }
   }
 }
